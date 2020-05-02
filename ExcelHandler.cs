@@ -19,6 +19,7 @@ namespace DocJournalParser
 
         public ExcelHandler()
         {
+            xlApp.DisplayAlerts = false;
             xlWorkBook = xlApp.Workbooks.Add(misValue);
             xlWorkSheet = (Excel.Worksheet)xlWorkBook.Worksheets.get_Item(1);
             xlWorkSheet.Cells[1, 1] = "Фамилия";
@@ -64,8 +65,9 @@ namespace DocJournalParser
         internal void SaveFile(string fileName)
         {
             string appPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            xlWorkBook.SaveAs(appPath + @"\" + fileName, ConflictResolution: Excel.XlSaveConflictResolution.xlLocalSessionChanges);
-            xlWorkBook.Close(true, misValue, misValue);
+            xlWorkBook.SaveAs(appPath + @"\" + fileName, AccessMode: Excel.XlSaveAsAccessMode.xlNoChange,
+                ConflictResolution: Excel.XlSaveConflictResolution.xlLocalSessionChanges);
+            xlWorkBook.Close(SaveChanges: true);
             xlApp.Quit();
             Marshal.ReleaseComObject(xlWorkSheet);
             Marshal.ReleaseComObject(xlWorkBook);

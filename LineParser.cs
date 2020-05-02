@@ -7,8 +7,11 @@ namespace DocJournalParser
 {
     internal class LineParser
     {
-        public LineParser()
+        private AutorPatterns autorPatterns;
+
+        public LineParser(AutorPatterns autorPatterns)
         {
+            this.autorPatterns = autorPatterns;
         }
 
         internal JDiscription Parse(string line)
@@ -20,21 +23,12 @@ namespace DocJournalParser
             try
             {
                 string articleData = line.Split(new string[] { " // " }, StringSplitOptions.None)[0];
-                ParseAutor(jDiscription, articleData);
-
-                GetTitleAndTitleInfo(jDiscription, articleData);
-                if (Regex.IsMatch(jDiscription.Title, @"^[^А-Я|\[|\<|\d|\w]"))
-                {
-                    throw new InvalidCastException("WRONG START OF TITLE");
-                }
+                GetAutor(jDiscription, ref articleData);
+                GetTitleAndTitleInfo(jDiscription, ref articleData);
 
                 string journalData = line.Split(new string[] { " // " }, StringSplitOptions.None)[1];
                 string fullPubInfo = string.Empty;
-                if (journalData.Split(new string[] { "Полная публикация: " }, StringSplitOptions.None).Length > 1)
-                {
-                    fullPubInfo = journalData.Split(new string[] { "Полная публикация: " }, StringSplitOptions.None)[1];
-                    journalData = journalData.Replace(fullPubInfo, "");
-                }
+                ExtractData(ref journalData, ref fullPubInfo);
 
                 jDiscription.Year = ExtractProp(journalData, @" \d{4}.", " ", ".");
                 jDiscription.Volume = ExtractProp(journalData, @"Т. \d", "Т. ");
@@ -55,7 +49,16 @@ namespace DocJournalParser
             return jDiscription;
         }
 
-        private static void GetTitleAndTitleInfo(JDiscription jDiscription, string articleData)
+        private void ExtractData(ref string journalData, ref string fullPubInfo)
+        {
+            if (journalData.Split(new string[] { "Полная публикация: " }, StringSplitOptions.None).Length > 1)
+            {
+                fullPubInfo = journalData.Split(new string[] { "Полная публикация: " }, StringSplitOptions.None)[1];
+                journalData = journalData.Replace(fullPubInfo, "");
+            }
+        }
+
+        private void GetTitleAndTitleInfo(JDiscription jDiscription, ref string articleData)
         {
             articleData = Regex.Replace(articleData, @"^\.? ", "");
             if (articleData.StartsWith("["))
@@ -77,6 +80,10 @@ namespace DocJournalParser
             {
                 jDiscription.Title = articleData;
             }
+            if (Regex.IsMatch(jDiscription.Title, @"^[^А-Я|\[|\<|\d|\w]"))
+            {
+                throw new InvalidCastException("WRONG START OF TITLE");
+            }
         }
 
         private string GetPages(string journalData)
@@ -95,37 +102,9 @@ namespace DocJournalParser
             return pages;
         }
 
-        private void ParseAutor(JDiscription jDiscription, string articleData)
+        private void GetAutor(JDiscription jDiscription, ref string articleData)
         {
-            string initialsPattern = @"[А-Я].\s[А-Я].";
-            string unknownPattern = @"^([А-Я]|\w)*\.? ?([А-Я]|\w)*\.? ?\[Автор не установлен.\]";
-            string knownPattern = @"^[А-Я]*[а-я]* ?([А-Я]|\w)*\.? ?([А-Я]|\w|\*)\.? \[= ?[А-я]*-?[А-Я][а-я]+ [А-Я]\. ?[А-Я]?\.?\]";
-            string knownMonachPattern = @"^[А-Я]*[а-я]* ?([А-Я]|\w)\. ([А-Я]|\w)\. \*?\[= ?[А-я]+ \([А-я]+\), [а-я]+\.\]";
-            string hiddenManPattern = @"^\[([А-Я])([а-я])+ ([А-Я]). ([А-Я]).\]";
-            string manPattern = @"^([А-я])*-?([А-Я])([а-я])+ ([А-Я])\. ([А-Я])\.,?( диак| свящ| прот| граф)?\.?( проф.)?";
-            string monachPattern = @"^([А-я])+ \(([А-я])+\), ([а-я])+\.";
-            string bishopPattern = @"^([А-Я])([а-я])+ \(([А-Я])([а-я])+\), ([а-я])+ ([А-Я])([а-я])+ий ?и? ?([А-Я])?([а-я])*\.?";
-            string saintPattern = @"^([А-Я])([а-я])+ ([А-Я])([а-я])+, ([а-я])+\.";
-            string saintBishopPattern = @"^([А-Я])([а-я])+, ([а-я])+\. ([А-Я])([а-я])+ий, ([а-я])+\.";
-            string[] invertPatterns = new string[] {
-                monachPattern,
-                bishopPattern,
-                saintPattern,
-                saintBishopPattern
-            };
-
-            string[] mPatterns = new string[] {
-                unknownPattern,
-                knownPattern,
-                knownMonachPattern,
-                hiddenManPattern,
-                manPattern,
-                monachPattern,
-                bishopPattern,
-                saintPattern,
-                saintBishopPattern
-            };
-            foreach (string mPattern in mPatterns)
+            foreach (string mPattern in autorPatterns.matchPatterns)
             {
                 Match match = Regex.Match(articleData, mPattern);
                 if (match.Success)
@@ -134,14 +113,20 @@ namespace DocJournalParser
                     if (!string.IsNullOrEmpty(jDiscription.LastName))
                     {
                         articleData = articleData.Replace(jDiscription.LastName, "");
-                        jDiscription.Initials = ExtractProp(jDiscription.LastName, initialsPattern);
-                        jDiscription.LastName = jDiscription.LastName.Replace(jDiscription.Initials, "");
+                        if (!autorPatterns.detectedPatterns.Contains(mPattern))
+                        {
+                            jDiscription.Initials = ExtractProp(jDiscription.LastName, autorPatterns.initialsPattern);
+                        }
+                        if (!string.IsNullOrEmpty(jDiscription.Initials))
+                        {
+                            jDiscription.LastName = jDiscription.LastName.Replace(jDiscription.Initials, "");
+                        }
 
                         if (jDiscription.LastName.Split(new[] { ',' }, 2).Length > 1)
                         {
                             jDiscription.Rank = jDiscription.LastName.Split(new[] { ',' }, 2)[1];
                         }
-                        if (invertPatterns.Contains(mPattern))
+                        if (autorPatterns.invertPatterns.Contains(mPattern))
                         {
                             jDiscription.Invertion = "1";
                         }

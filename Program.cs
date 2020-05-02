@@ -16,15 +16,19 @@ namespace DocJournalParser
 
         private static void Main(string[] args)
         {
+            Console.WriteLine("App started");
+
             string excelFileName = "БВ в ОПАК. Роспись БВ.xlsx";
             string docFileName = "БВ в ОПАК. Роспись БВ.doc";
+            //docFileName = "Test.doc";
+
             KillWordAndExcel();
             WordHandler wordHandler = new WordHandler(docFileName);
             ExcelHandler excelHandler = new ExcelHandler();
-            LineParser lineParser = new LineParser();
+            AutorPatterns autorPatterns = new AutorPatterns();
+            LineParser lineParser = new LineParser(autorPatterns);
 
             MaximizeWindow();
-            Console.WriteLine("App started");
 
             foreach (string line in wordHandler.ReadLines())
             {
@@ -34,6 +38,7 @@ namespace DocJournalParser
 
             wordHandler.Quit();
             excelHandler.SaveFile(excelFileName);
+            Console.WriteLine("All tasks ended");
             Console.ReadKey();
         }
 
@@ -47,15 +52,15 @@ namespace DocJournalParser
                     try
                     {
                         process.Kill();
-                        process.WaitForExit(); // possibly with a timeout
+                        process.WaitForExit();
                     }
                     catch (Win32Exception winException)
                     {
-                        // process was terminating or can't be terminated - deal with it
+                        Console.WriteLine(winException);
                     }
                     catch (InvalidOperationException invalidException)
                     {
-                        // process has already exited - might be able to let this one go
+                        Console.WriteLine(invalidException);
                     }
                 }
             }
