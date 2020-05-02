@@ -1,5 +1,6 @@
 ﻿using Microsoft.Office.Interop.Excel;
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace DocJournalParser
@@ -19,11 +20,7 @@ namespace DocJournalParser
             try
             {
                 string articleData = line.Split(new string[] { " // " }, StringSplitOptions.None)[0];
-                jDiscription.LastName = GetAutor(articleData);
-                if (!string.IsNullOrEmpty(jDiscription.LastName))
-                {
-                    articleData = articleData.Replace(jDiscription.LastName, "");
-                }
+                ParseAutor(jDiscription, articleData);
 
                 GetTitleAndTitleInfo(jDiscription, articleData);
                 if (Regex.IsMatch(jDiscription.Title, @"^[^А-Я|\[|\<|\d|\w]"))
@@ -98,9 +95,9 @@ namespace DocJournalParser
             return pages;
         }
 
-        private string GetAutor(string articleData)
+        private void ParseAutor(JDiscription jDiscription, string articleData)
         {
-            string autor = "";
+            string initialsPattern = @"[А-Я].\s[А-Я].";
             string unknownPattern = @"^([А-Я]|\w)*\.? ?([А-Я]|\w)*\.? ?\[Автор не установлен.\]";
             string knownPattern = @"^[А-Я]*[а-я]* ?([А-Я]|\w)*\.? ?([А-Я]|\w|\*)\.? \[= ?[А-я]*-?[А-Я][а-я]+ [А-Я]\. ?[А-Я]?\.?\]";
             string knownMonachPattern = @"^[А-Я]*[а-я]* ?([А-Я]|\w)\. ([А-Я]|\w)\. \*?\[= ?[А-я]+ \([А-я]+\), [а-я]+\.\]";
@@ -110,6 +107,13 @@ namespace DocJournalParser
             string bishopPattern = @"^([А-Я])([а-я])+ \(([А-Я])([а-я])+\), ([а-я])+ ([А-Я])([а-я])+ий ?и? ?([А-Я])?([а-я])*\.?";
             string saintPattern = @"^([А-Я])([а-я])+ ([А-Я])([а-я])+, ([а-я])+\.";
             string saintBishopPattern = @"^([А-Я])([а-я])+, ([а-я])+\. ([А-Я])([а-я])+ий, ([а-я])+\.";
+            string[] invertPatterns = new string[] {
+                monachPattern,
+                bishopPattern,
+                saintPattern,
+                saintBishopPattern
+            };
+
             string[] mPatterns = new string[] {
                 unknownPattern,
                 knownPattern,
@@ -126,11 +130,26 @@ namespace DocJournalParser
                 Match match = Regex.Match(articleData, mPattern);
                 if (match.Success)
                 {
-                    autor = ExtractProp(articleData, mPattern);
+                    jDiscription.LastName = ExtractProp(articleData, mPattern);
+                    if (!string.IsNullOrEmpty(jDiscription.LastName))
+                    {
+                        articleData = articleData.Replace(jDiscription.LastName, "");
+                        jDiscription.Initials = ExtractProp(jDiscription.LastName, initialsPattern);
+                        jDiscription.LastName = jDiscription.LastName.Replace(jDiscription.Initials, "");
+
+                        if (jDiscription.LastName.Split(new[] { ',' }, 2).Length > 1)
+                        {
+                            jDiscription.Rank = jDiscription.LastName.Split(new[] { ',' }, 2)[1];
+                        }
+                        if (invertPatterns.Contains(mPattern))
+                        {
+                            jDiscription.Invertion = "1";
+                        }
+                        jDiscription.LastName = Regex.Replace(jDiscription.LastName, @"\.\s?$", "");
+                        jDiscription.LastName = Regex.Replace(jDiscription.LastName, @"\s$", "");
+                    }
                 }
             }
-            autor = Regex.Replace(autor, @"\. ?$", "");
-            return autor;
         }
 
         private string ExtractProp(string inputString, string matchPattern, params string[] replaceStrings)

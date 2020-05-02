@@ -11,7 +11,9 @@ namespace DocJournalParser
     {
         public string LastName { get; set; } = string.Empty;
         public string Initials { get; set; } = string.Empty;
+        public string Rank { get; internal set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
+        public string Invertion { get; internal set; } = string.Empty;
         public string TitleInfo { get; set; } = string.Empty;
         public string Year { get; set; } = string.Empty;
         public string Volume { get; set; } = string.Empty;
