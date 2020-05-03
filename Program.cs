@@ -20,7 +20,7 @@ namespace DocJournalParser
 
             string excelFileName = "БВ в ОПАК. Роспись БВ.xlsx";
             string docFileName = "БВ в ОПАК. Роспись БВ.doc";
-            //docFileName = "Test.doc";
+            docFileName = "Test.doc";
 
             KillWordAndExcel();
             WordHandler wordHandler = new WordHandler(docFileName);

@@ -21,7 +21,12 @@ namespace DocJournalParser
         {
             xlApp.DisplayAlerts = false;
             xlWorkBook = xlApp.Workbooks.Add(misValue);
+
             xlWorkSheet = (Excel.Worksheet)xlWorkBook.Worksheets.get_Item(1);
+            Excel.Range cells = xlWorkBook.Worksheets[1].Cells;
+            cells.NumberFormat = "@";
+            cells.HorizontalAlignment = Excel.XlHAlign.xlHAlignRight;
+
             xlWorkSheet.Cells[1, 1] = "Фамилия";
             xlWorkSheet.Cells[1, 2] = "Инициалы";
             xlWorkSheet.Cells[1, 3] = "Чин";
@@ -37,8 +42,6 @@ namespace DocJournalParser
             xlWorkSheet.Cells[1, 13] = "Том полн. публ.";
             xlWorkSheet.Cells[1, 14] = "Номер полн. публ.";
             xlWorkSheet.Cells[1, 15] = "Стр. ст. полн. публ.";
-
-            //xlWorkSheet.get_Range("A1", "G1").Cells.HorizontalAlignment = Excel.XlHAlign.xlHAlignLeft;
         }
 
         internal void AddRow(JDiscription jDiscription)

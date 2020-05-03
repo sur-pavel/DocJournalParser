@@ -17,7 +17,7 @@ namespace DocJournalParser
         public JDiscription Parse(string line)
         {
             line = Regex.Replace(line, @"^\d+. ", "");
-            line = line.Replace("//", " //").Replace("  ", " ");
+            line = line.Replace("//", " //").Replace("  ", " ").Replace(". ,", ".,");
 
             JDiscription jDiscription = new JDiscription();
             try
@@ -61,7 +61,7 @@ namespace DocJournalParser
 
         private void GetTitleAndTitleInfo(JDiscription jDiscription, ref string articleData)
         {
-            articleData = Regex.Replace(articleData, @"^\s+", "");
+            articleData = articleData.Trim();
             articleData = Regex.Replace(articleData, @"^\.+", "");
             if (articleData.StartsWith("["))
             {
@@ -83,6 +83,8 @@ namespace DocJournalParser
                 jDiscription.Title = articleData;
             }
             jDiscription.Title = Regex.Replace(jDiscription.Title, @"^(\.|\,|\:|\;)", "");
+            jDiscription.Title = jDiscription.Title.Trim();
+            jDiscription.TitleInfo = jDiscription.TitleInfo.Trim();
         }
 
         private string GetPages(string journalData)
@@ -108,6 +110,7 @@ namespace DocJournalParser
 
         private void GetAutor(JDiscription jDiscription, ref string articleData)
         {
+            articleData = articleData.Trim();
             foreach (string mPattern in patterns.matchPatterns)
             {
                 Match match = Regex.Match(articleData, mPattern);
@@ -125,7 +128,7 @@ namespace DocJournalParser
 
                         if (jDiscription.LastName.Split(new[] { ',' }, 2).Length > 1)
                         {
-                            jDiscription.Rank = CleanString(jDiscription.LastName.Split(new[] { ',' }, 2)[1]);
+                            jDiscription.Rank = jDiscription.LastName.Split(new[] { ',' }, 2)[1].Trim();
                             jDiscription.LastName = ReplaceIfNotNull(jDiscription.LastName, jDiscription.Rank);
                         }
                         if (patterns.invertPatterns.Contains(mPattern))
@@ -157,17 +160,9 @@ namespace DocJournalParser
                 foreach (string repStr in replaceStrings)
                 {
                     returnValue = returnValue.Replace(repStr, "");
-                    returnValue = CleanString(returnValue);
                 }
             }
-            return returnValue;
-        }
-
-        private string CleanString(string returnValue)
-        {
-            returnValue = Regex.Replace(returnValue, @"^\s+", "");
-            returnValue = Regex.Replace(returnValue, @"\s+$", "");
-            return returnValue;
+            return returnValue.Trim();
         }
     }
 }
