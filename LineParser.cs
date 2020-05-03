@@ -5,16 +5,16 @@ using System.Text.RegularExpressions;
 
 namespace DocJournalParser
 {
-    internal class LineParser
+    public class LineParser
     {
-        private AutorPatterns autorPatterns;
+        private Patterns patterns;
 
-        public LineParser(AutorPatterns autorPatterns)
+        public LineParser(Patterns patterns)
         {
-            this.autorPatterns = autorPatterns;
+            this.patterns = patterns;
         }
 
-        internal JDiscription Parse(string line)
+        public JDiscription Parse(string line)
         {
             line = Regex.Replace(line, @"^\d+. ", "");
             line = line.Replace("//", " //").Replace("  ", " ");
@@ -28,17 +28,18 @@ namespace DocJournalParser
 
                 string journalData = line.Split(new string[] { " // " }, StringSplitOptions.None)[1];
                 string fullPubInfo = string.Empty;
-                ExtractData(ref journalData, ref fullPubInfo);
+                ExtractFullPubInfo(ref journalData, ref fullPubInfo);
 
-                jDiscription.Year = ExtractProp(journalData, @" \d{4}.", " ", ".");
-                jDiscription.Volume = ExtractProp(journalData, @"Т. \d", "Т. ");
-                jDiscription.Number = ExtractProp(journalData, @"№ \d", "№ ");
+                jDiscription.Year = ExtractProp(journalData, patterns.yearPattern, " ", ".");
+                jDiscription.Volume = ExtractProp(journalData, patterns.volumePattern, "Т. ");
+                jDiscription.Number = ExtractProp(journalData, patterns.numberPattern, "№ ");
                 jDiscription.Pages = GetPages(journalData);
 
-                jDiscription.FullPubYear = ExtractProp(fullPubInfo, @" \d{4}.", " ", ".");
-                jDiscription.FullPubVolume = ExtractProp(fullPubInfo, @"Т. \d", "Т. ");
-                jDiscription.FullPubNumber = ExtractProp(fullPubInfo, @"№ \d", "№ ");
-                jDiscription.FullPubPageRange = ExtractProp(fullPubInfo, @"С. \d+–\d+ \(\d-([а-я])+ пагин.\)", "С. ");
+                jDiscription.FullPubYear = ExtractProp(fullPubInfo, patterns.yearPattern, " ", ".");
+                jDiscription.FullPubVolume = ExtractProp(fullPubInfo, patterns.volumePattern, "Т. ");
+                jDiscription.FullPubNumber = ExtractProp(fullPubInfo, patterns.numberPattern, "№ ");
+                jDiscription.FullPubPageRange = ExtractProp(fullPubInfo, patterns.pagesPattern, "С. ");
+                jDiscription.FullPubPageRange = CleanPages(jDiscription.FullPubPageRange);
             }
             catch (Exception ex)
             {
@@ -49,7 +50,7 @@ namespace DocJournalParser
             return jDiscription;
         }
 
-        private void ExtractData(ref string journalData, ref string fullPubInfo)
+        private void ExtractFullPubInfo(ref string journalData, ref string fullPubInfo)
         {
             if (journalData.Split(new string[] { "Полная публикация: " }, StringSplitOptions.None).Length > 1)
             {
@@ -60,7 +61,8 @@ namespace DocJournalParser
 
         private void GetTitleAndTitleInfo(JDiscription jDiscription, ref string articleData)
         {
-            articleData = Regex.Replace(articleData, @"^\.? ", "");
+            articleData = Regex.Replace(articleData, @"^\s+", "");
+            articleData = Regex.Replace(articleData, @"^\.+", "");
             if (articleData.StartsWith("["))
             {
                 jDiscription.Title = articleData;
@@ -70,7 +72,7 @@ namespace DocJournalParser
                 jDiscription.Title = articleData.Split(new string[] { ". [" }, StringSplitOptions.None)[0];
                 jDiscription.TitleInfo = "[" + articleData.Split(new string[] { ". [" }, StringSplitOptions.None)[1];
             }
-            else if (articleData.Split(new[] { ':' }, 2).Length > 1)
+            else if (articleData.Split(new[] { ':' }, 2).Length > 1 && !articleData.StartsWith("[Рец. на"))
             {
                 jDiscription.Title = articleData.Split(new[] { ':' }, 2)[0];
                 jDiscription.TitleInfo = articleData.Split(new[] { ':' }, 2)[1];
@@ -80,31 +82,33 @@ namespace DocJournalParser
             {
                 jDiscription.Title = articleData;
             }
-            if (Regex.IsMatch(jDiscription.Title, @"^[^А-Я|\[|\<|\d|\w]"))
-            {
-                throw new InvalidCastException("WRONG START OF TITLE");
-            }
+            jDiscription.Title = Regex.Replace(jDiscription.Title, @"^(\.|\,|\:|\;)", "");
         }
 
         private string GetPages(string journalData)
         {
-            string pagesPattern = @"С. (\d+|(I{0,3}|XC|XL|L?X{0,3}))–(\d+|(I{0,3}|XC|XL|L?X{0,3})) " +
-                @"\(\d-([а-я])+ пагин.\)\.? ?\(?(Начало.|Продолжение.|Окончание.)?\)?";
+            string pagesPattern = patterns.pagesPattern;
             string pages = ExtractProp(journalData, pagesPattern, "С. ");
 
             if (string.IsNullOrEmpty(pages))
             {
                 pages = ExtractProp(journalData, @"\d+ с\.");
             }
+            pages = CleanPages(pages);
+
+            return pages;
+        }
+
+        private static string CleanPages(string pages)
+        {
             pages = Regex.Replace(pages, @"\.? $", "");
             pages = Regex.Replace(pages, @"\)\. ?$", ")");
-
             return pages;
         }
 
         private void GetAutor(JDiscription jDiscription, ref string articleData)
         {
-            foreach (string mPattern in autorPatterns.matchPatterns)
+            foreach (string mPattern in patterns.matchPatterns)
             {
                 Match match = Regex.Match(articleData, mPattern);
                 if (match.Success)
@@ -113,28 +117,35 @@ namespace DocJournalParser
                     if (!string.IsNullOrEmpty(jDiscription.LastName))
                     {
                         articleData = articleData.Replace(jDiscription.LastName, "");
-                        if (!autorPatterns.detectedPatterns.Contains(mPattern))
+                        if (!patterns.detectedPatterns.Contains(mPattern))
                         {
-                            jDiscription.Initials = ExtractProp(jDiscription.LastName, autorPatterns.initialsPattern);
-                        }
-                        if (!string.IsNullOrEmpty(jDiscription.Initials))
-                        {
-                            jDiscription.LastName = jDiscription.LastName.Replace(jDiscription.Initials, "");
+                            jDiscription.Initials = ExtractProp(jDiscription.LastName, patterns.initialsPattern);
+                            jDiscription.LastName = ReplaceIfNotNull(jDiscription.LastName, jDiscription.Initials);
                         }
 
                         if (jDiscription.LastName.Split(new[] { ',' }, 2).Length > 1)
                         {
-                            jDiscription.Rank = jDiscription.LastName.Split(new[] { ',' }, 2)[1];
+                            jDiscription.Rank = CleanString(jDiscription.LastName.Split(new[] { ',' }, 2)[1]);
+                            jDiscription.LastName = ReplaceIfNotNull(jDiscription.LastName, jDiscription.Rank);
                         }
-                        if (autorPatterns.invertPatterns.Contains(mPattern))
+                        if (patterns.invertPatterns.Contains(mPattern))
                         {
                             jDiscription.Invertion = "1";
                         }
-                        jDiscription.LastName = Regex.Replace(jDiscription.LastName, @"\.\s?$", "");
-                        jDiscription.LastName = Regex.Replace(jDiscription.LastName, @"\s$", "");
+                        jDiscription.LastName = Regex.Replace(jDiscription.LastName, @"(\.|\,)\s?$", "");
+                        jDiscription.LastName = Regex.Replace(jDiscription.LastName, @"\s+$", "");
                     }
                 }
             }
+        }
+
+        private string ReplaceIfNotNull(string inputString, string replaceString)
+        {
+            if (!string.IsNullOrEmpty(replaceString))
+            {
+                inputString = inputString.Replace(replaceString, "");
+            }
+            return inputString;
         }
 
         private string ExtractProp(string inputString, string matchPattern, params string[] replaceStrings)
@@ -146,8 +157,16 @@ namespace DocJournalParser
                 foreach (string repStr in replaceStrings)
                 {
                     returnValue = returnValue.Replace(repStr, "");
+                    returnValue = CleanString(returnValue);
                 }
             }
+            return returnValue;
+        }
+
+        private string CleanString(string returnValue)
+        {
+            returnValue = Regex.Replace(returnValue, @"^\s+", "");
+            returnValue = Regex.Replace(returnValue, @"\s+$", "");
             return returnValue;
         }
     }
