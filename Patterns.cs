@@ -20,7 +20,7 @@ namespace DocJournalParser
         internal string hiddenManPattern = @"^\[([А-Я])([а-я])+ ([А-Я]). ([А-Я]).\]";
         internal string manPattern = @"^([А-я])*-?([А-Я])([а-я])+ ([А-Я])\. ([А-Я])\.,?( диак| свящ| прот| граф)?\.?\,?( проф.)?";
         internal string monachPattern = @"^[А-я]+\s\([А-я]+\),\s[а-я]+\.\,?\s?(наместник.+пустыни|наместник.+монастыря)?";
-        internal string bishopPattern = @"^([А-Я])([а-я])+ \(([А-Я])([а-я])+\), ([а-я])+ ([А-Я])([а-я])+ий ?и? ?([А-Я])?([а-я])*";
+        internal string bishopPattern = @"^[А-Я][а-я]+\s\([А-Я][а-я]+\),\s[а-я]+\.?\s[А-Я][а-я]+(ий|ой)\s?и?\s?[А-Я]?[а-я]*";
         internal string saintPattern = @"^([А-Я])([а-я])+ ([А-Я])([а-я])+, ([а-я])+\.";
         internal string saintBishopPattern = @"^([А-Я])([а-я])+, ([а-я])+\. ([А-Я])([а-я])+ий, ([а-я])+\.";
         internal string[] invertPatterns;
@@ -30,8 +30,8 @@ namespace DocJournalParser
         public Patterns()
         {
             invertPatterns = new string[] {
-                monachPattern,
                 bishopPattern,
+                monachPattern,
                 saintPattern,
                 saintBishopPattern
             };
@@ -41,8 +41,8 @@ namespace DocJournalParser
                 detectedMonachPattern,
                 hiddenManPattern,
                 manPattern,
-                monachPattern,
                 bishopPattern,
+                monachPattern,
                 saintPattern,
                 saintBishopPattern
             };
