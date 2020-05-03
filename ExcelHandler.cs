@@ -25,7 +25,7 @@ namespace DocJournalParser
             xlWorkSheet = (Excel.Worksheet)xlWorkBook.Worksheets.get_Item(1);
             Excel.Range cells = xlWorkBook.Worksheets[1].Cells;
             cells.NumberFormat = "@";
-            cells.HorizontalAlignment = Excel.XlHAlign.xlHAlignRight;
+            cells.HorizontalAlignment = Excel.XlHAlign.xlHAlignLeft;
 
             xlWorkSheet.Cells[1, 1] = "Фамилия";
             xlWorkSheet.Cells[1, 2] = "Инициалы";
