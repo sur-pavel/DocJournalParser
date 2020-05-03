@@ -8,10 +8,10 @@ namespace DocJournalParser
 {
     public class Patterns
     {
-        internal string yearPattern = @"\d{4}\-?\d{0,4}";
-        internal string volumePattern = @"Т. \d";
+        internal string yearPattern = @"\d{4}(\–|\-)?\d{0,4}";
+        internal string volumePattern = @"Т. \d+(\–\d+)?";
         internal string numberPattern = @"№ \d+\/?\d*\/?\d*";
-        internal string pagesPattern = @"С\. .+\(\d-([а-я])+ пагин\.\)\.? ?\(?(Начало.|Продолжение.|Окончание.)?\)?";
+        internal string pagesPattern = @"С\.\s(.*\(\d-([а-я])+ пагин\.\)|\d+\–?\d*)\.? ?\(?(Начало.|Продолжение.|Окончание.)?\)?";
         internal string initialsPattern = @"[А-Я].\s[А-Я].";
 
         internal string unknownPattern = @"^.*\[Автор не установлен.\]";
