@@ -25,7 +25,7 @@ namespace DocJournalParser
             KillWordAndExcel();
             WordHandler wordHandler = new WordHandler(docFileName);
             ExcelHandler excelHandler = new ExcelHandler();
-            AutorPatterns autorPatterns = new AutorPatterns();
+            Patterns autorPatterns = new Patterns();
             LineParser lineParser = new LineParser(autorPatterns);
 
             MaximizeWindow();
