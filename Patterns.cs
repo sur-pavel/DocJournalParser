@@ -7,11 +7,14 @@ using System.Threading.Tasks;
 namespace DocJournalParser
 {
     public class Patterns
+
     {
+        internal string reviewPattern = @"\[Рец. на:.+$";
         internal string yearPattern = @"\d{4}(\–|\-)?\d{0,4}";
         internal string volumePattern = @"Т. \d+(\–\d+)?";
         internal string numberPattern = @"№ \d+\/?\d*\/?\d*";
-        internal string pagesPattern = @"С\.\s(.*\(\d-([а-я])+ пагин\.\)|\d+\–?\d*)\.? ?\(?(Начало.|Продолжение.|Окончание.)?\)?";
+        internal string pagesPattern = @"С\.\s(.*\(\d-([а-я])+ пагин\.\)|\d+\–?\d*)";
+        internal string notesPattern = @"\((Начало.|Продолжение.|Окончание.)\)";
         internal string initialsPattern = @"[А-Я].\s[А-Я].";
 
         internal string unknownPattern = @"^.*\[Автор не установлен.\]";
@@ -20,7 +23,7 @@ namespace DocJournalParser
         internal string hiddenManPattern = @"^\[([А-Я])([а-я])+ ([А-Я]). ([А-Я]).\]";
         internal string manPattern = @"^([А-я])*-?([А-Я])([а-я])+ ([А-Я])\. ([А-Я])\.,?( диак| свящ| прот| граф)?\.?\,?( проф.)?";
         internal string monachPattern = @"^[А-я]+\s\([А-я]+\),\s[а-я]+\.\,?\s?(наместник.+пустыни|наместник.+монастыря)?";
-        internal string bishopPattern = @"^[А-Я][а-я]+\s\([А-Я][а-я]+\),\s[а-я]+\.?\s[А-Я][а-я]+(ий|ой)\s?и?\s?[А-Я]?[а-я]*";
+        internal string bishopPattern = @"^[А-Я][а-я]+\s\([А-Я][а-я]+\),\s(еп|архиеп|митр|патр)[а-я]*\.?\s[А-Я][а-я]+(ий|ой)\s?и?\s?[А-Я]?[а-я]*";
         internal string saintPattern = @"^([А-Я])([а-я])+ ([А-Я])([а-я])+, ([а-я])+\.";
         internal string saintBishopPattern = @"^([А-Я])([а-я])+, ([а-я])+\. ([А-Я])([а-я])+ий, ([а-я])+\.";
         internal string[] invertPatterns;
