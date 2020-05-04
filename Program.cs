@@ -19,22 +19,23 @@ namespace DocJournalParser
         private static void Main(string[] args)
         {
             Console.WriteLine("App started");
+            KillProcesses("winword", "excel");
+            MaximizeConsoleWindow();
 
-            KillWordAndExcel();
-
-            MaximizeWindow();
+            Patterns patterns = new Patterns();
+            WordHandler wordHandler = new WordHandler(patterns);
+            ExcelHandler excelHandler = new ExcelHandler();
+            LineParser lineParser = new LineParser(patterns);
 
             string currentDirPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             DirectoryInfo dirFilesInfo = new DirectoryInfo(currentDirPath);
+
             foreach (FileInfo fileInfo in dirFilesInfo.GetFiles("*.doc"))
             {
                 Console.WriteLine(fileInfo.FullName);
-                WordHandler wordHandler = new WordHandler(fileInfo.Name);
-                ExcelHandler excelHandler = new ExcelHandler();
-                Patterns autorPatterns = new Patterns();
-                LineParser lineParser = new LineParser(autorPatterns);
+                excelHandler.CreateWorkSheet();
 
-                foreach (string line in wordHandler.ReadLines())
+                foreach (string line in wordHandler.ReadLines(fileInfo.Name))
                 {
                     JDiscription jDiscription = lineParser.Parse(line);
                     excelHandler.AddRow(jDiscription);
@@ -44,12 +45,12 @@ namespace DocJournalParser
             }
 
             Console.WriteLine("All tasks ended");
+            Console.WriteLine("\n\nPress any key...");
             Console.ReadKey();
         }
 
-        private static void KillWordAndExcel()
+        private static void KillProcesses(params string[] processNames)
         {
-            string[] processNames = new string[] { "winword", "excel" };
             foreach (string processName in processNames)
             {
                 foreach (Process process in Process.GetProcessesByName(processName))
@@ -71,10 +72,10 @@ namespace DocJournalParser
             }
         }
 
-        private static void MaximizeWindow()
+        private static void MaximizeConsoleWindow()
         {
-            Process p = Process.GetCurrentProcess();
-            ShowWindow(p.MainWindowHandle, 3);
+            Process process = Process.GetCurrentProcess();
+            ShowWindow(process.MainWindowHandle, 3);
         }
     }
 }
