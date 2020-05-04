@@ -23,8 +23,6 @@ namespace DocJournalParser
             MaximizeConsoleWindow();
 
             Patterns patterns = new Patterns();
-            WordHandler wordHandler = new WordHandler(patterns);
-            ExcelHandler excelHandler = new ExcelHandler();
             LineParser lineParser = new LineParser(patterns);
 
             string currentDirPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -32,8 +30,9 @@ namespace DocJournalParser
 
             foreach (FileInfo fileInfo in dirFilesInfo.GetFiles("*.doc"))
             {
-                Console.WriteLine(fileInfo.FullName);
-                excelHandler.CreateWorkSheet();
+                Console.WriteLine("Parse file: " + fileInfo.FullName);
+                WordHandler wordHandler = new WordHandler(patterns);
+                ExcelHandler excelHandler = new ExcelHandler();
 
                 foreach (string line in wordHandler.ReadLines(fileInfo.Name))
                 {
@@ -41,7 +40,7 @@ namespace DocJournalParser
                     excelHandler.AddRow(jDiscription);
                 }
                 wordHandler.Quit();
-                excelHandler.SaveFile(fileInfo.Name.Replace(".doc", ".xlsx"));
+                excelHandler.SaveFile(fileInfo.FullName.Replace(".doc", ".xlsx"));
             }
 
             Console.WriteLine("All tasks ended");

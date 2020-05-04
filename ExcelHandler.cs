@@ -11,20 +11,16 @@ namespace DocJournalParser
 {
     internal class ExcelHandler
     {
-        private Excel.Application xlApp = new Excel.Application();
+        private Excel.Application xlApp;
         private Excel.Workbook xlWorkBook;
         private Excel.Worksheet xlWorkSheet;
-        private object misValue = Missing.Value;
         private int row = 2;
 
         internal ExcelHandler()
         {
+            xlApp = new Excel.Application();
             xlApp.DisplayAlerts = false;
             xlWorkBook = xlApp.Workbooks.Add();
-        }
-
-        internal void CreateWorkSheet()
-        {
             xlWorkSheet = (Excel.Worksheet)xlWorkBook.Worksheets.get_Item(1);
             Excel.Range cells = xlWorkBook.Worksheets[1].Cells;
             cells.NumberFormat = "@";
@@ -70,14 +66,14 @@ namespace DocJournalParser
 
         internal void SaveFile(string fileName)
         {
-            string appPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            xlWorkBook.SaveAs(appPath + @"\" + fileName, AccessMode: Excel.XlSaveAsAccessMode.xlNoChange,
+            xlWorkBook.SaveAs(fileName, AccessMode: Excel.XlSaveAsAccessMode.xlNoChange,
                 ConflictResolution: Excel.XlSaveConflictResolution.xlLocalSessionChanges);
             xlWorkBook.Close(SaveChanges: true);
             xlApp.Quit();
             Marshal.ReleaseComObject(xlWorkSheet);
             Marshal.ReleaseComObject(xlWorkBook);
             Marshal.ReleaseComObject(xlApp);
+            Console.WriteLine("Excel file created");
         }
     }
 }
