@@ -17,11 +17,14 @@ namespace DocJournalParser
         private object misValue = Missing.Value;
         private int row = 2;
 
-        public ExcelHandler()
+        internal ExcelHandler()
         {
             xlApp.DisplayAlerts = false;
-            xlWorkBook = xlApp.Workbooks.Add(misValue);
+            xlWorkBook = xlApp.Workbooks.Add();
+        }
 
+        internal void CreateWorkSheet()
+        {
             xlWorkSheet = (Excel.Worksheet)xlWorkBook.Worksheets.get_Item(1);
             Excel.Range cells = xlWorkBook.Worksheets[1].Cells;
             cells.NumberFormat = "@";
