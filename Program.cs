@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,26 +20,29 @@ namespace DocJournalParser
         {
             Console.WriteLine("App started");
 
-            string excelFileName = "БВ в ОПАК. Роспись БВ.xlsx";
-            string docFileName = "БВ в ОПАК. Роспись БВ.doc";
-            //docFileName = "Test.doc";
-
             KillWordAndExcel();
-            WordHandler wordHandler = new WordHandler(docFileName);
-            ExcelHandler excelHandler = new ExcelHandler();
-            Patterns autorPatterns = new Patterns();
-            LineParser lineParser = new LineParser(autorPatterns);
 
             MaximizeWindow();
 
-            foreach (string line in wordHandler.ReadLines())
+            string currentDirPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            DirectoryInfo dirFilesInfo = new DirectoryInfo(currentDirPath);
+            foreach (FileInfo fileInfo in dirFilesInfo.GetFiles("*.doc"))
             {
-                JDiscription jDiscription = lineParser.Parse(line);
-                excelHandler.AddRow(jDiscription);
+                Console.WriteLine(fileInfo.FullName);
+                WordHandler wordHandler = new WordHandler(fileInfo.Name);
+                ExcelHandler excelHandler = new ExcelHandler();
+                Patterns autorPatterns = new Patterns();
+                LineParser lineParser = new LineParser(autorPatterns);
+
+                foreach (string line in wordHandler.ReadLines())
+                {
+                    JDiscription jDiscription = lineParser.Parse(line);
+                    excelHandler.AddRow(jDiscription);
+                }
+                wordHandler.Quit();
+                excelHandler.SaveFile(fileInfo.Name.Replace(".doc", ".xlsx"));
             }
 
-            wordHandler.Quit();
-            excelHandler.SaveFile(excelFileName);
             Console.WriteLine("All tasks ended");
             Console.ReadKey();
         }
