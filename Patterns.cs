@@ -9,6 +9,9 @@ namespace DocJournalParser
     public class Patterns
 
     {
+        internal string yearNumberPattern = @"^(\d{4})*\/?\d{4}-\d\/?\d?";
+        internal string oddPagesPattern = @"^\d+\.\s(Передняя обложка|Объявления|Задняя обложка).+";
+        internal string linePattern = @"^\d\. .+\/\/.+";
         internal string reviewPattern = @"\[Рец. на:.+$";
         internal string yearPattern = @"\d{4}(\–|\-)?\d{0,4}";
         internal string volumePattern = @"Т. \d+(\–\d+)?";

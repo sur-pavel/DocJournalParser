@@ -10,21 +10,23 @@ using Microsoft.Office.Interop.Word;
 
 namespace DocJournalParser
 {
-    public class WordHandler
+    internal class WordHandler
     {
         private Document objDoc;
         private Application wordApp;
+        private Patterns patterns;
+        private string appPath;
 
-        public WordHandler(string fileName)
+        internal WordHandler(Patterns patterns)
         {
+            this.patterns = patterns;
             wordApp = new Application();
-            string appPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            objDoc = wordApp.Documents.Open(appPath + @"\" + fileName, ReadOnly: false);
+            appPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         }
 
-        internal List<string> ReadLines()
-
+        internal List<string> ReadLines(string fileName)
         {
+            objDoc = wordApp.Documents.Open(appPath + @"\" + fileName, ReadOnly: false);
             Console.WriteLine("Reading of lines in doc begins");
             List<string> data = new List<string>();
             for (int i = 0; i < objDoc.Paragraphs.Count; i++)
@@ -32,11 +34,20 @@ namespace DocJournalParser
                 Range parRange = objDoc.Paragraphs[i + 1].Range;
                 string line = parRange.Text.Trim();
 
-                Match yearNumber = Regex.Match(line, @"(\d{4})*\/?\d{4}-\d\/?\d?");
+                Match yearNumberMatch = Regex.Match(line, patterns.yearNumberPattern);
+                Match oddPagesMatch = Regex.Match(line, patterns.oddPagesPattern);
+                Match lineMatch = Regex.Match(line, patterns.linePattern);
 
-                if (line != string.Empty && !yearNumber.Success)
+                if (!yearNumberMatch.Success && !oddPagesMatch.Success)
                 {
-                    data.Add(line);
+                    if (lineMatch.Success)
+                    {
+                        data.Add(line);
+                    }
+                    else
+                    {
+                        //i--;
+                    }
                 }
             }
             Console.WriteLine("Reading of lines in doc ends");
