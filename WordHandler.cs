@@ -29,7 +29,6 @@ namespace DocJournalParser
             List<string> data = new List<string>();
             for (int i = 0; i < objDoc.Paragraphs.Count; i++)
             {
-                //if (i > 300) break;
                 Range parRange = objDoc.Paragraphs[i + 1].Range;
                 string line = parRange.Text.Trim();
 
