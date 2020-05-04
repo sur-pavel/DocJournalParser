@@ -34,6 +34,7 @@ namespace DocJournalParser
                 jDiscription.Volume = ExtractProp(journalData, patterns.volumePattern, "Т. ");
                 jDiscription.Number = ExtractProp(journalData, patterns.numberPattern, "№ ");
                 jDiscription.Pages = GetPages(journalData);
+                jDiscription.Notes = ExtractProp(journalData, patterns.notesPattern, "(", ")", ".");
 
                 jDiscription.FullPubYear = ExtractProp(fullPubInfo, patterns.yearPattern, " ", ".");
                 jDiscription.FullPubVolume = ExtractProp(fullPubInfo, patterns.volumePattern, "Т. ");
@@ -63,14 +64,15 @@ namespace DocJournalParser
         {
             articleData = articleData.Trim();
             articleData = Regex.Replace(articleData, @"^\.+", "");
+            Match reviewMatch = Regex.Match(articleData, patterns.reviewPattern);
             if (articleData.StartsWith("["))
             {
                 jDiscription.Title = articleData;
             }
-            else if (articleData.Split(new string[] { ". [" }, StringSplitOptions.None).Length > 1)
+            else if (reviewMatch.Success && !articleData.StartsWith("[Рец. на"))
             {
-                jDiscription.Title = articleData.Split(new string[] { ". [" }, StringSplitOptions.None)[0];
-                jDiscription.TitleInfo = "[" + articleData.Split(new string[] { ". [" }, StringSplitOptions.None)[1];
+                jDiscription.Title = articleData.Replace(reviewMatch.Value, "");
+                jDiscription.TitleInfo = reviewMatch.Value;
             }
             else if (articleData.Split(new[] { ':' }, 2).Length > 1 && !articleData.StartsWith("[Рец. на"))
             {
@@ -82,8 +84,9 @@ namespace DocJournalParser
             {
                 jDiscription.Title = articleData;
             }
-            jDiscription.Title = Regex.Replace(jDiscription.Title, @"^(\.|\,|\:|\;)", "");
             jDiscription.Title = jDiscription.Title.Trim();
+            jDiscription.Title = Regex.Replace(jDiscription.Title, @"^(\.|\,|\:|\;)", "");
+            jDiscription.Title = Regex.Replace(jDiscription.Title, @"(\.|\,|\:|\;)$", "");
             jDiscription.TitleInfo = jDiscription.TitleInfo.Trim();
         }
 
