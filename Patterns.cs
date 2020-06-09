@@ -32,6 +32,11 @@ namespace DocJournalParser
 
         internal Match yearPattern(string str)
         {
+            return Regex.Match(str, @"\d{4}(\–\d{4})*");
+        }
+
+        internal Match yearNumberPattern(string str)
+        {
             return Regex.Match(str, @"\d{4}(-|\/\d{4})*(-|\/)*\d*(\/\d)?");
         }
 

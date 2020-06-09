@@ -40,20 +40,20 @@ namespace DocJournalParser
                 Range parRange = objDoc.Paragraphs[i + 1].Range;
                 string line = parRange.Text.Trim();
 
-                if (patterns.yearPattern(line).Success)
+                if (patterns.yearNumberPattern(line).Success && !patterns.yearPattern(line).Success)
                 {
                     index = 0;
                 }
-                if (patterns.MatchOddPages(line).Success)
+                else if (patterns.MatchOddPages(line).Success)
                 {
                     index++;
                 }
-                if (!string.IsNullOrWhiteSpace(line) && !patterns.yearPattern(line).Success && !patterns.MatchOddPages(line).Success)
+                else if (!string.IsNullOrEmpty(line) && patterns.linePattern(line).Success)
                 {
                     int recordIndex = int.Parse(Regex.Match(line, @"^\d+").Value) - index;
                     line = Regex.Replace(line, @"^\d+.\s?", recordIndex + ". ");
                     data.Add(line);
-                    Console.WriteLine($"index = {index} \n {line}");
+                    Console.WriteLine($"index = {recordIndex} \n {line}");
                 }
                 else
                 {
