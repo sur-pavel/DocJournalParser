@@ -51,7 +51,7 @@ namespace DocJournalParser
 
         internal void AddRow(JDiscription jDiscription)
         {
-            xlWorkSheet.Cells[row, 1] = jDiscription.DiscriptionNumber;
+            xlWorkSheet.Cells[row, 1] = jDiscription.DеscriptionNumber;
             xlWorkSheet.Cells[row, 2] = jDiscription.LastName;
             xlWorkSheet.Cells[row, 3] = jDiscription.Initials;
             xlWorkSheet.Cells[row, 4] = jDiscription.Rank;

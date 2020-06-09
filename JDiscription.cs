@@ -29,7 +29,7 @@ namespace DocJournalParser
         public string FullPubVolume { get; set; } = string.Empty;
         public string FullPubNumber { get; set; } = string.Empty;
         public string FullPubPageRange { get; set; } = string.Empty;
-        public dynamic DiscriptionNumber { get; set; } = string.Empty;
+        public dynamic DеscriptionNumber { get; set; } = string.Empty;
 
         private PropertyInfo[] _PropertyInfos = null;
 

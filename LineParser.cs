@@ -18,7 +18,7 @@ namespace DocJournalParser
         public JDiscription Parse(string line)
         {
             JDiscription jDiscription = new JDiscription();
-            jDiscription.DiscriptionNumber = int.Parse(Regex.Match(line, @"^\d+").Value);
+            jDiscription.DеscriptionNumber = int.Parse(Regex.Match(line, @"^\d+").Value);
             line = Regex.Replace(line, @"^\d+. ", "");
             line = line.Replace("//", " //").Replace("  ", " ").Replace(". ,", ".,");
 
