@@ -39,8 +39,8 @@ namespace DocJournalParser
                 Range parRange = objDoc.Paragraphs[i + 1].Range;
                 string line = parRange.Text.Trim();
 
-                Match yearNumberMatch = Regex.Match(line, patterns.yearNumberPattern);
-                Match oddPagesMatch = Regex.Match(line, patterns.oddPagesPattern);
+                Match yearNumberMatch = Regex.Match(line, patterns.yearNumberPattern(line).Value);
+                Match oddPagesMatch = Regex.Match(line, patterns.oddPagesPattern(line).Value);
 
                 if (patterns.MatchYear(line).Success)
                 {

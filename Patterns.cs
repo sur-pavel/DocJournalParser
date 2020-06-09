@@ -10,8 +10,6 @@ namespace DocJournalParser
     public class Patterns
 
     {
-        private delegate Match cleanUpMatch(string str);
-
         internal Match cleanUpPattern(string str)
         {
             return Regex.Match(str, @"^\s*(\.|\,|\:|\;)|(\.|\,|\:|\;)\s*$");

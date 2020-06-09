@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DocJournalParser
 {
-    internal class Program
+    internal static class Program
     {
         [DllImport("user32.dll")]
         public static extern bool ShowWindow(IntPtr hWnd, int cmdShow);
