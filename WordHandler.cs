@@ -36,13 +36,11 @@ namespace DocJournalParser
             int index = 0;
             for (; i < objDoc.Paragraphs.Count; i++)
             {
+                linesCount++;
                 Range parRange = objDoc.Paragraphs[i + 1].Range;
                 string line = parRange.Text.Trim();
 
-                Match yearNumberMatch = Regex.Match(line, patterns.yearNumberPattern(line).Value);
-                Match oddPagesMatch = Regex.Match(line, patterns.oddPagesPattern(line).Value);
-
-                if (patterns.MatchYear(line).Success)
+                if (patterns.yearPattern(line).Success)
                 {
                     index = 0;
                 }
@@ -50,16 +48,12 @@ namespace DocJournalParser
                 {
                     index++;
                 }
-                if (!yearNumberMatch.Success && !patterns.MatchOddPages(line).Success)
+                if (!string.IsNullOrWhiteSpace(line) && !patterns.yearPattern(line).Success && !patterns.MatchOddPages(line).Success)
                 {
-                    if (patterns.MatchLine(line).Success)
-                    {
-                        linesCount++;
-                        int recordIndex = int.Parse(Regex.Match(line, @"^\d+").Value) - index;
-                        line = Regex.Replace(line, @"^\d+. ", recordIndex + ". ");
-                        data.Add(line);
-                        Console.WriteLine($"index = {index} \n {line}");
-                    }
+                    int recordIndex = int.Parse(Regex.Match(line, @"^\d+").Value) - index;
+                    line = Regex.Replace(line, @"^\d+.\s?", recordIndex + ". ");
+                    data.Add(line);
+                    Console.WriteLine($"index = {index} \n {line}");
                 }
                 else
                 {
