@@ -32,8 +32,6 @@ namespace DocJournalParser
             return Regex.Match(str, @"^\d\. .+\/\/.+");
         }
 
-        private delegate Match cleanUpMatch(string str);
-
         internal Match reviewPattern(string str)
         {
             return Regex.Match(str, @"\[Рец. на:.+$");
@@ -148,10 +146,7 @@ namespace DocJournalParser
             return invertMathces;
         }
 
-        //internal Match allInvert(string str)
-        //{
-        //}
-        internal List<Match> autorMatches(string str)
+        internal List<Match> AutorMatches(string str)
         {
             Match unknownMatch = unknownPattern(str);
             Match detectedAutorMatch = detectedAutorPattern(str);
@@ -176,16 +171,14 @@ namespace DocJournalParser
             return autorMatches;
         }
 
-        public Patterns()
+        public List<Match> DetectedMatches(string str)
         {
-            matchPatterns = List<Func<Match>> {
-            };
-
-            detectedPatterns = List<Func<Match>>
-            {
-                detectedAutorPattern,
-                detectedMonachPattern,
-            };
+            Match detectedAutorMatch = detectedAutorPattern(str);
+            Match detectedMonachMatch = detectedMonachPattern(str);
+            List<Match> detectedMatches = new List<Match>();
+            detectedMatches.Add(detectedAutorMatch);
+            detectedMatches.Add(detectedMonachMatch);
+            return detectedMatches;
         }
 
         internal Match MatchOddPages(string str)
