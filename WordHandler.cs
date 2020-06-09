@@ -27,31 +27,54 @@ namespace DocJournalParser
         internal List<string> ReadLines(string fileName)
         {
             objDoc = wordApp.Documents.Open(appPath + @"\" + fileName, ReadOnly: false);
+            //RewriteParagraphs();
+
             Console.WriteLine("Reading of lines in doc begins");
             List<string> data = new List<string>();
-            for (int i = 0; i < objDoc.Paragraphs.Count; i++)
+            int linesCount = 0;
+            int i = 0;
+            int index = 0;
+            for (; i < objDoc.Paragraphs.Count; i++)
             {
                 Range parRange = objDoc.Paragraphs[i + 1].Range;
                 string line = parRange.Text.Trim();
 
                 Match yearNumberMatch = Regex.Match(line, patterns.yearNumberPattern);
                 Match oddPagesMatch = Regex.Match(line, patterns.oddPagesPattern);
-                Match lineMatch = Regex.Match(line, patterns.linePattern);
 
-                if (!yearNumberMatch.Success && !oddPagesMatch.Success)
+                if (patterns.MatchYear(line).Success)
                 {
-                    if (lineMatch.Success)
+                    index = 0;
+                }
+                if (patterns.MatchOddPages(line).Success)
+                {
+                    index++;
+                }
+                if (!yearNumberMatch.Success && !patterns.MatchOddPages(line).Success)
+                {
+                    if (patterns.MatchLine(line).Success)
                     {
+                        linesCount++;
+                        int recordIndex = int.Parse(Regex.Match(line, @"^\d+").Value) - index;
+                        line = Regex.Replace(line, @"^\d+. ", recordIndex + ". ");
                         data.Add(line);
-                    }
-                    else
-                    {
-                        //i--;
+                        Console.WriteLine($"index = {index} \n {line}");
                     }
                 }
+                else
+                {
+                    Console.WriteLine(line);
+                }
             }
+            Console.WriteLine($"linesCount: {linesCount} Paragraphs.Count = {objDoc.Paragraphs.Count}");
             Console.WriteLine("Reading of lines in doc ends");
             return data;
+        }
+
+        private void RewriteParagraphs()
+        {
+            wordApp.Selection.Find.ClearFormatting();
+            wordApp.Selection.Find.Execute(FindText: "^p", ReplaceWith: "");
         }
 
         private string GetItalicText(Range parRange)

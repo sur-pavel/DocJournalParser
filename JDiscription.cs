@@ -13,17 +13,23 @@ namespace DocJournalParser
         public string Initials { get; set; } = string.Empty;
         public string Rank { get; set; } = string.Empty;
         public string Invertion { get; set; } = string.Empty;
+        public string FirstEdLastName { get; set; } = string.Empty;
+        public string FirstEdInitials { get; set; } = string.Empty;
+        public string FirstEdRank { get; set; } = string.Empty;
+        public string FirstEdInvertion { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public string TitleInfo { get; set; } = string.Empty;
+        public string Editors { get; set; } = string.Empty;
         public string Year { get; set; } = string.Empty;
-        public string Volume { get; set; } = string.Empty;
-        public string Number { get; set; } = string.Empty;
+        public string JVolume { get; set; } = string.Empty;
+        public string JNumber { get; set; } = string.Empty;
         public string Pages { get; set; } = string.Empty;
         public string Notes { get; set; } = string.Empty;
         public string FullPubYear { get; set; } = string.Empty;
         public string FullPubVolume { get; set; } = string.Empty;
         public string FullPubNumber { get; set; } = string.Empty;
         public string FullPubPageRange { get; set; } = string.Empty;
+        public dynamic DiscriptionNumber { get; set; } = string.Empty;
 
         private PropertyInfo[] _PropertyInfos = null;
 
@@ -53,8 +59,8 @@ namespace DocJournalParser
                    Title == discription.Title &&
                    TitleInfo == discription.TitleInfo &&
                    Year == discription.Year &&
-                   Volume == discription.Volume &&
-                   Number == discription.Number &&
+                   JVolume == discription.JVolume &&
+                   JNumber == discription.JNumber &&
                    Pages == discription.Pages &&
                    Notes == discription.Notes &&
                    FullPubYear == discription.FullPubYear &&
@@ -73,8 +79,8 @@ namespace DocJournalParser
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Title);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(TitleInfo);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Year);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Volume);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Number);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(JVolume);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(JNumber);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Pages);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Notes);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(FullPubYear);
