@@ -15,11 +15,6 @@ namespace DocJournalParser
             return Regex.Match(str, @"^\s*(\.|\,|\:|\;)|(\.|\,|\:|\;)\s*$");
         }
 
-        internal Match yearNumberPattern(string str)
-        {
-            return Regex.Match(str, @"^(\d{4})*\/?\d{4}-\d\/?\d?");
-        }
-
         internal Match oddPagesPattern(string str)
         {
             return Regex.Match(str, @"^\d+\.\s(Передняя обложка|Объявления|Задняя обложка).+");
@@ -37,7 +32,7 @@ namespace DocJournalParser
 
         internal Match yearPattern(string str)
         {
-            return Regex.Match(str, @"\d{4}(\–|\-)?\d{0,4}");
+            return Regex.Match(str, @"\d{4}(-|\/\d{4})*(-|\/)*\d*(\/\d)?");
         }
 
         internal Match volumePattern(string str)
@@ -83,6 +78,36 @@ namespace DocJournalParser
         internal Match editorsCountPattern(string str)
         {
             return Regex.Match(str, @"(\[?[А-Я]\.(\s[А-Я]\.)?\]?\s[А-Я][а-я|ё]+|(архим|иг|прот|свящ|иером)[а-я|ё]*\.?\s[А-Я][а-я|ё]+\s?\(?[А-Я][а-я|ё]+\)?)\,?");
+        }
+
+        internal Match MatchOddPages(string str)
+        {
+            return Regex.Match(str, @"^\d+\.\s?(Передняя обложка|Объявления|Задняя обложка|Список сокращений).+");
+        }
+
+        internal Match MatchLastName(string str)
+        {
+            return Regex.Match(str, @"(\sи|;)\s");
+        }
+
+        internal Match MatchRank(string str)
+        {
+            return Regex.Match(str, @"(\sи|;)\s");
+        }
+
+        internal Match MatchInitials(string str)
+        {
+            return Regex.Match(str, @"[А-Я]\.(\s[А-Я]\.)?");
+        }
+
+        public Match MatchLine(string str)
+        {
+            return Regex.Match(str, @"^\d+\.\s?.+\/\/.+");
+        }
+
+        internal Match MatchSplitEditor(string str)
+        {
+            return Regex.Match(str, @"(\sи|;)\s");
         }
 
         internal Match unknownPattern(string str)
@@ -132,86 +157,31 @@ namespace DocJournalParser
 
         internal List<Match> InvertMathches(string str)
         {
-            Match monachMatch = monachPattern(str);
-            Match bishopMatch = bishopPattern(str);
-            Match saintMatch = saintPattern(str);
-            Match saintBishopMatch = saintBishopPattern(str);
-            List<Match> invertMathces = new List<Match>();
-            invertMathces.Add(monachMatch);
-            invertMathces.Add(bishopMatch);
-            invertMathces.Add(saintMatch);
-            invertMathces.Add(saintBishopMatch);
-            return invertMathces;
+            return new List<Match>() {
+            monachPattern(str),
+            bishopPattern(str),
+            saintPattern(str),
+            saintBishopPattern(str)};
         }
 
         internal List<Match> AutorMatches(string str)
         {
-            Match unknownMatch = unknownPattern(str);
-            Match detectedAutorMatch = detectedAutorPattern(str);
-            Match detectedMonachMatch = detectedMonachPattern(str);
-            Match hiddenManMatch = hiddenManPattern(str);
-            Match manMatch = manPattern(str);
-            Match monachMatch = monachPattern(str);
-            Match bishopMatch = bishopPattern(str);
-            Match saintMatch = saintPattern(str);
-            Match saintBishopMatch = saintBishopPattern(str);
-
-            List<Match> autorMatches = new List<Match>();
-            autorMatches.Add(unknownMatch);
-            autorMatches.Add(detectedAutorMatch);
-            autorMatches.Add(detectedMonachMatch);
-            autorMatches.Add(hiddenManMatch);
-            autorMatches.Add(manMatch);
-            autorMatches.Add(monachMatch);
-            autorMatches.Add(bishopMatch);
-            autorMatches.Add(saintMatch);
-            autorMatches.Add(saintBishopMatch);
-            return autorMatches;
+            return new List<Match>() { unknownPattern(str),
+            detectedAutorPattern(str),
+            detectedMonachPattern(str),
+            hiddenManPattern(str),
+            manPattern(str),
+            monachPattern(str),
+            bishopPattern(str),
+            saintPattern(str),
+            saintBishopPattern(str)};
         }
 
         public List<Match> DetectedMatches(string str)
         {
-            Match detectedAutorMatch = detectedAutorPattern(str);
-            Match detectedMonachMatch = detectedMonachPattern(str);
-            List<Match> detectedMatches = new List<Match>();
-            detectedMatches.Add(detectedAutorMatch);
-            detectedMatches.Add(detectedMonachMatch);
-            return detectedMatches;
-        }
-
-        internal Match MatchOddPages(string str)
-        {
-            return Regex.Match(str, @"^\d+\.\s?(Передняя обложка|Объявления|Задняя обложка|Список сокращений).+");
-        }
-
-        internal Match MatchYear(string str)
-        {
-            return Regex.Match(str, @"^(\d{4})*\/?\d{4}-\d\/?\d?");
-        }
-
-        internal Match MatchLastName(string str)
-        {
-            return Regex.Match(str, @"(\sи|;)\s");
-        }
-
-        internal Match MatchRank(string str)
-        {
-            return Regex.Match(str, @"(\sи|;)\s");
-        }
-
-        internal Match MatchInitials(string str)
-        {
-            return Regex.Match(str, @"[А-Я]\.(\s[А-Я]\.)?");
-        }
-
-        public Match MatchLine(string str)
-        {
-            return Regex.Match(str, @"^\d+\.\s?.+\/\/.+");
-        }
-
-        internal Match MatchSplitEditor(string str)
-        {
-            return Regex.Match(str, @"(\sи|;)\s");
+            return new List<Match>() {
+            detectedAutorPattern(str),
+            detectedMonachPattern(str)};
         }
     }
 }
