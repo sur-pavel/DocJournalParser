@@ -40,9 +40,9 @@ namespace DocJournalParser
 
         internal string MatchInitials = @"[А-Я]\.(\s[А-Я]\.)?";
 
-        internal string yearPattern = @".+\d{4}(\–\d{4})*";
+        internal string yearPattern = @"\d{4}(\–|\-)?\d{0,4}";
 
-        internal string yearNumberPattern = @"^\d{4}(-|\/\d{4})*(-|\/)*\d*(\/\d)?";
+        internal string yearNumberPattern = @"^\d{4}(-|\/\d{4})*(-|\/)*\d*(\/\d)?$";
 
         internal Match MatchLine(string str)
         {

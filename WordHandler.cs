@@ -42,7 +42,7 @@ namespace DocJournalParser
                 Match MatchYearNumberPattern = Regex.Match(line, patterns.yearNumberPattern);
                 Match MatchyearPattern = Regex.Match(line, patterns.yearPattern);
 
-                if (MatchYearNumberPattern.Success && !MatchyearPattern.Success)
+                if (MatchYearNumberPattern.Success)
                 {
                     index = 0;
                 }
