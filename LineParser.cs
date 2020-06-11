@@ -64,11 +64,9 @@ namespace DocJournalParser
             {
                 jDiscription.Editors = editorsMatch.Value;
                 ReplaceIfNotNull(jDiscription.Editors, necrologue);
-
                 jDiscription.Editors = Regex.Replace(jDiscription.Editors, @"\s?\/\s?", "");
                 articleData = ReplaceIfNotNull(articleData, jDiscription.Editors);
                 articleData += necrologue;
-
                 GetFirstEditor(jDiscription);
                 jDiscription.Editors = CleanUpString(jDiscription.Editors);
             }
