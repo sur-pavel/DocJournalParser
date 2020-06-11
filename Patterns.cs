@@ -34,6 +34,8 @@ namespace DocJournalParser
 
         internal string editorsPattern = @"\s\/\s(Сообщ|Пер|Под|Вступ|Примеч|Публ|Предисл|С портр|Сост).+";
 
+        internal string editorFunc = @"\s?(Сообщ|Пер|Под|Вступ|Примеч|Публ|Предисл|С портр|Сост)\.?\s?";
+
         internal string lastName = @"(\sи|;)\s";
 
         internal string rank = @"(\sи|;)\s";

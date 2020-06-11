@@ -66,53 +66,57 @@ namespace DocJournalParser
                 ReplaceIfNotNull(jDiscription.Editors, necrologue);
 
                 jDiscription.Editors = Regex.Replace(jDiscription.Editors, @"\s?\/\s?", "");
-                ReplaceIfNotNull(articleData, jDiscription.Editors);
+                articleData = ReplaceIfNotNull(articleData, jDiscription.Editors);
                 articleData += necrologue;
 
-                articleData = NewMethod(jDiscription, articleData);
+                GetFirstEditor(jDiscription);
+                jDiscription.Editors = CleanUpString(jDiscription.Editors);
             }
         }
 
-        private string NewMethod(JDiscription jDiscription, string articleData)
+        private void GetFirstEditor(JDiscription jDiscription)
         {
             Match firstEditorM = patterns.MatchSplitEditor(jDiscription.Editors);
             if (firstEditorM.Success)
             {
-                foreach (Match mPattern in patterns.AutorMatches(firstEditorM.Value))
-                {
-                    string firstEditor = jDiscription.Editors.Split(new string[] { firstEditorM.Value }, StringSplitOptions.None)[0];
-                    Match match = Regex.Match(firstEditor, mPattern.Value);
-                    if (match.Success)
-                    {
-                        jDiscription.FirstEdLastName = ExtractProp(articleData, mPattern.Value);
-                        if (!string.IsNullOrEmpty(jDiscription.FirstEdLastName))
-                        {
-                            articleData = articleData.Replace(jDiscription.FirstEdLastName, "");
-                            foreach (Match detected in patterns.DetectedMatches(mPattern.Value))
-                            {
-                                if (!patterns.DetectedMatches(mPattern.Value).Contains(mPattern))
-                                {
-                                    jDiscription.FirstEdInitials = ExtractProp(jDiscription.FirstEdLastName, patterns.initialsPattern);
-                                    jDiscription.FirstEdLastName = ReplaceIfNotNull(jDiscription.FirstEdLastName, jDiscription.FirstEdInitials);
-                                }
-                            }
-
-                            if (jDiscription.FirstEdLastName.Split(new[] { ',' }, 2).Length > 1)
-                            {
-                                jDiscription.FirstEdRank = jDiscription.FirstEdLastName.Split(new[] { ',' }, 2)[1].Trim();
-                                jDiscription.FirstEdLastName = ReplaceIfNotNull(jDiscription.FirstEdLastName, jDiscription.FirstEdRank);
-                            }
-                            if (patterns.InvertMathches(mPattern.Value).Contains(mPattern))
-                            {
-                                jDiscription.FirstEdInvertion = "1";
-                            }
-                        }
-                    }
-                }
-                jDiscription.FirstEdLastName = CleanUpString(jDiscription.FirstEdLastName);
+                jDiscription.FirstEdLastName = Regex.Split(jDiscription.Editors, patterns.lastName)[0];
             }
-            jDiscription.Editors = CleanUpString(jDiscription.Editors);
-            return articleData;
+            else
+            {
+                jDiscription.FirstEdLastName = jDiscription.Editors;
+            }
+            jDiscription.FirstEdLastName = Regex.Replace(jDiscription.FirstEdLastName, patterns.editorFunc, "");
+            foreach (Match match in patterns.InvertMathches(jDiscription.FirstEdLastName))
+            {
+                if (match.Success)
+                {
+                    jDiscription.FirstEdInvertion = "1";
+                }
+            }
+            if (!patterns.DetectedMatches(jDiscription.FirstEdLastName).Contains(firstEditorM))
+            {
+                jDiscription.FirstEdInitials = ExtractProp(jDiscription.FirstEdLastName, patterns.initialsPattern);
+                jDiscription.FirstEdLastName = ReplaceIfNotNull(jDiscription.FirstEdLastName, jDiscription.FirstEdInitials);
+            }
+            string[] lastNameSplit = Regex.Split(jDiscription.FirstEdLastName, @"(,\s)");
+
+            if (lastNameSplit.Length > 1)
+            {
+                for (int i = 1; i < lastNameSplit.Length; i++)
+                {
+                    jDiscription.FirstEdRank += lastNameSplit[i];
+                    jDiscription.FirstEdLastName = ReplaceIfNotNull(jDiscription.FirstEdLastName, lastNameSplit[i]);
+                }
+                if (Regex.IsMatch(jDiscription.FirstEdRank, @"\.\s*$"))
+                {
+                    jDiscription.FirstEdRank = CleanUpString(jDiscription.FirstEdRank) + ".";
+                }
+                else
+                {
+                    jDiscription.FirstEdRank = CleanUpString(jDiscription.FirstEdRank);
+                }
+            }
+            jDiscription.FirstEdLastName = CleanUpString(jDiscription.FirstEdLastName);
         }
 
         private void ExtractFullPubInfo(ref string journalData, ref string fullPubInfo)
