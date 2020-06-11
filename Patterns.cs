@@ -32,9 +32,9 @@ namespace DocJournalParser
 
         internal string exclusionPattern = @"\[.*(по поводу кн.|рец. на|о книге|по поводу .+ст.).*\]";
 
-        internal string editorsPattern = @"\s\/\s(Сообщ|Пер|Под|Вступ|Примеч|Публ|Предисл|С портр|Сост).+";
+        internal string editorsPattern = @"\s\/\s(Сообщ|Пер|Под ред|Вступ|Примеч|Публ|Предисл|С портр|Сост).+";
 
-        internal string editorFunc = @"\s?(Сообщ|Пер|Под|Вступ|Примеч|Публ|Предисл|С портр|Сост)\.?\s?";
+        internal string editorFunc = @"\s?(Сообщ|Пер|Под ред|Вступ|Примеч|Публ|Предисл|С портр|Сост)\.?(\sс\s[а-я]*\.)?";
 
         internal string lastName = @"(\sи|;)\s";
 
@@ -140,6 +140,20 @@ namespace DocJournalParser
             return new List<Match>() {
                 detectedAutorPattern(str),
                 detectedMonachPattern(str)};
+        }
+
+        internal string DeclineLastName(string firstEdLastName)
+        {
+            string bracket = string.Empty;
+            if (firstEdLastName.Contains(")"))
+            {
+                bracket = ")";
+                firstEdLastName = firstEdLastName.Replace(bracket, "");
+            }
+            firstEdLastName = Regex.Replace(firstEdLastName, "ского$", "ский");
+            firstEdLastName = Regex.Replace(firstEdLastName, "ова$", "ов");
+            firstEdLastName += bracket;
+            return firstEdLastName;
         }
     }
 }

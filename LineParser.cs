@@ -117,6 +117,7 @@ namespace DocJournalParser
                 }
             }
             jDiscription.FirstEdLastName = CleanUpString(jDiscription.FirstEdLastName);
+            jDiscription.FirstEdLastName = patterns.DeclineLastName(jDiscription.FirstEdLastName);
         }
 
         private void ExtractFullPubInfo(ref string journalData, ref string fullPubInfo)
