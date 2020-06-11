@@ -35,16 +35,16 @@ namespace DocJournalParser
                 string fullPubInfo = string.Empty;
                 ExtractFullPubInfo(ref journalData, ref fullPubInfo);
 
-                jDiscription.Year = ExtractProp(journalData, patterns.yearPattern(journalData).Value);
-                jDiscription.JVolume = ExtractProp(journalData, patterns.volumePattern(journalData).Value, "Т. ");
-                jDiscription.JNumber = ExtractProp(journalData, patterns.numberPattern(journalData).Value, "№ ");
+                jDiscription.Year = ExtractProp(journalData, patterns.yearPattern);
+                jDiscription.JVolume = ExtractProp(journalData, patterns.volumePattern, "Т. ");
+                jDiscription.JNumber = ExtractProp(journalData, patterns.numberPattern, "№ ");
                 jDiscription.Pages = GetPages(journalData);
-                jDiscription.Notes = ExtractProp(journalData, patterns.notesPattern(journalData).Value, "(", ")", ".");
+                jDiscription.Notes = ExtractProp(journalData, patterns.notesPattern, "(", ")", ".");
 
-                jDiscription.FullPubYear = ExtractProp(fullPubInfo, patterns.yearPattern(fullPubInfo).Value, " ", ".");
-                jDiscription.FullPubVolume = ExtractProp(fullPubInfo, patterns.volumePattern(fullPubInfo).Value, "Т. ");
-                jDiscription.FullPubNumber = ExtractProp(fullPubInfo, patterns.numberPattern(fullPubInfo).Value, "№ ");
-                jDiscription.FullPubPageRange = ExtractProp(fullPubInfo, patterns.pagesPattern(fullPubInfo).Value, "С. ");
+                jDiscription.FullPubYear = ExtractProp(fullPubInfo, patterns.yearPattern, " ", ".");
+                jDiscription.FullPubVolume = ExtractProp(fullPubInfo, patterns.volumePattern, "Т. ");
+                jDiscription.FullPubNumber = ExtractProp(fullPubInfo, patterns.numberPattern, "№ ");
+                jDiscription.FullPubPageRange = ExtractProp(fullPubInfo, patterns.pagesPattern, "С. ");
                 jDiscription.FullPubPageRange = CleanPages(jDiscription.FullPubPageRange);
             }
             catch (Exception ex)
@@ -58,15 +58,14 @@ namespace DocJournalParser
 
         private void GetEditors(JDiscription jDiscription, ref string articleData)
         {
-            Match editorsMatch = Regex.Match(articleData, patterns.editorsPattern(articleData).Value);
-            string necrologue = Regex.Match(articleData, patterns.necrologuePattern(articleData).Value).Value;
-            if (editorsMatch.Success && !Regex.IsMatch(articleData, patterns.exclusionPattern(articleData).Value))
+            Match editorsMatch = Regex.Match(articleData, patterns.editorsPattern);
+            string necrologue = Regex.Match(articleData, patterns.necrologuePattern).Value;
+            if (editorsMatch.Success && !Regex.IsMatch(articleData, patterns.exclusionPattern))
             {
                 jDiscription.Editors = editorsMatch.Value;
-                if (!string.IsNullOrEmpty(necrologue))
-                {
-                    jDiscription.Editors.Replace(necrologue, "");
-                }
+                ReplaceIfNotNull(jDiscription.Editors, necrologue);
+
+                jDiscription.Editors = Regex.Replace(jDiscription.Editors, @"\s?\/\s?", "");
                 articleData = articleData.Replace(jDiscription.Editors, "");
                 articleData += necrologue;
 
@@ -89,7 +88,7 @@ namespace DocJournalParser
                                     {
                                         if (!patterns.DetectedMatches(mPattern.Value).Contains(mPattern))
                                         {
-                                            jDiscription.Initials = ExtractProp(jDiscription.LastName, patterns.initialsPattern(jDiscription.LastName).Value);
+                                            jDiscription.Initials = ExtractProp(jDiscription.LastName, patterns.initialsPattern);
                                             jDiscription.LastName = ReplaceIfNotNull(jDiscription.LastName, jDiscription.Initials);
                                         }
                                     }
@@ -108,16 +107,17 @@ namespace DocJournalParser
                             }
                         }
                     }
-                    jDiscription.Editors = CleanUpString(jDiscription.Editors.Replace(" / ", ""));
+                    jDiscription.Editors = CleanUpString(jDiscription.Editors);
                 }
             }
         }
 
         private void ExtractFullPubInfo(ref string journalData, ref string fullPubInfo)
         {
-            if (journalData.Split(new string[] { "Полная публикация:" }, StringSplitOptions.None).Length > 1)
+            string[] fullPubSplit = Regex.Split(journalData, "Полная публикация:");
+            if (fullPubSplit.Length > 1)
             {
-                fullPubInfo = journalData.Split(new string[] { "Полная публикация:" }, StringSplitOptions.None)[1];
+                fullPubInfo = fullPubSplit[1];
                 journalData = journalData.Replace(fullPubInfo, "");
             }
         }
@@ -125,7 +125,7 @@ namespace DocJournalParser
         private void GetTitleAndTitleInfo(JDiscription jDiscription, ref string articleData)
         {
             articleData = CleanUpString(articleData);
-            Match reviewMatch = Regex.Match(articleData, patterns.reviewPattern(articleData).Value);
+            Match reviewMatch = Regex.Match(articleData, patterns.reviewPattern);
             if (articleData.StartsWith("["))
             {
                 jDiscription.Title = articleData;
@@ -135,10 +135,10 @@ namespace DocJournalParser
                 jDiscription.Title = articleData.Replace(reviewMatch.Value, "");
                 jDiscription.TitleInfo = reviewMatch.Value;
             }
-            else if (articleData.Split(new[] { ':' }, 2).Length > 1 && !articleData.StartsWith("[Рец. на"))
+            else if (Regex.IsMatch(articleData, @".+\:.+") && !articleData.StartsWith("[Рец. на"))
             {
-                jDiscription.Title = articleData.Split(new[] { ':' }, 2)[0];
-                jDiscription.TitleInfo = articleData.Split(new[] { ':' }, 2)[1];
+                jDiscription.Title = Regex.Split(articleData, ":")[0];
+                jDiscription.TitleInfo = Regex.Split(articleData, ":")[1];
             }
             else
             {
@@ -150,7 +150,7 @@ namespace DocJournalParser
 
         private string GetPages(string journalData)
         {
-            string pagesPattern = patterns.pagesPattern(journalData).Value;
+            string pagesPattern = patterns.pagesPattern;
             string pages = ExtractProp(journalData, pagesPattern, "С. ");
 
             if (string.IsNullOrEmpty(pages))
@@ -172,18 +172,17 @@ namespace DocJournalParser
         private void GetAutor(JDiscription jDiscription, ref string articleData)
         {
             articleData = articleData.Trim();
-            foreach (Match mPattern in patterns.DetectedMatches(articleData))
+            foreach (Match mPattern in patterns.AutorMatches(articleData))
             {
-                Match match = Regex.Match(articleData, mPattern.Value);
-                if (match.Success)
+                if (mPattern.Success)
                 {
-                    jDiscription.LastName = ExtractProp(articleData, mPattern.Value);
+                    jDiscription.LastName = mPattern.Value;
                     if (!string.IsNullOrEmpty(jDiscription.LastName))
                     {
-                        articleData = articleData.Replace(jDiscription.LastName, "");
+                        articleData = ReplaceIfNotNull(articleData, jDiscription.LastName);
                         ParseAutor(jDiscription, mPattern);
+                        jDiscription.LastName = CleanUpString(jDiscription.LastName);
                     }
-                    jDiscription.LastName = CleanUpString(jDiscription.LastName);
                 }
             }
         }
@@ -192,24 +191,30 @@ namespace DocJournalParser
         {
             if (!patterns.DetectedMatches(jDiscription.LastName).Contains(mPattern))
             {
-                jDiscription.Initials = ExtractProp(jDiscription.LastName, patterns.initialsPattern(jDiscription.LastName).Value);
+                jDiscription.Initials = ExtractProp(jDiscription.LastName, patterns.initialsPattern);
                 jDiscription.LastName = ReplaceIfNotNull(jDiscription.LastName, jDiscription.Initials);
             }
+            string[] lastNameSplit = Regex.Split(jDiscription.LastName, @"(,\s)");
 
-            if (jDiscription.LastName.Split(new[] { ',' }, 2).Length > 1)
+            if (lastNameSplit.Length > 1)
             {
-                jDiscription.Rank = jDiscription.LastName.Split(new[] { ',' }, 2)[1].Trim();
-                jDiscription.LastName = ReplaceIfNotNull(jDiscription.LastName, jDiscription.Rank);
+                for (int i = 1; i < lastNameSplit.Length; i++)
+                {
+                    jDiscription.Rank += lastNameSplit[i];
+                    jDiscription.LastName = ReplaceIfNotNull(jDiscription.LastName, lastNameSplit[i]);
+                }
+                jDiscription.Rank = CleanUpString(jDiscription.Rank);
             }
             if (patterns.InvertMathches(mPattern.Value).Contains(mPattern))
             {
                 jDiscription.Invertion = "1";
             }
+            jDiscription.LastName = CleanUpString(jDiscription.LastName);
         }
 
         private string CleanUpString(string str)
         {
-            return Regex.Replace(str, patterns.cleanUpPattern(str).Value, "").Trim();
+            return Regex.Replace(str, patterns.cleanUpPattern, "").Trim();
         }
 
         private string ReplaceIfNotNull(string inputString, string replaceString)

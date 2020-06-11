@@ -10,109 +10,58 @@ namespace DocJournalParser
     public class Patterns
 
     {
-        internal Match cleanUpPattern(string str)
-        {
-            return Regex.Match(str, @"^\s*(\.|\,|\:|\;)|(\.|\,|\:|\;)\s*$");
-        }
+        internal string cleanUpPattern = @"^\s*(\.|\,|\:|\;|\/)|(\.|\,|\:|\;|\/)\s*$";
 
-        internal Match oddPagesPattern(string str)
-        {
-            return Regex.Match(str, @"^\d+\.\s(Передняя обложка|Объявления|Задняя обложка).+");
-        }
+        internal string oddPagesPattern = "^.+(Передняя обложка|Объявления|Задняя обложка|Последняя страница).+";
 
-        internal Match linePattern(string str)
-        {
-            return Regex.Match(str, @"^\d\. .+\/\/.+");
-        }
+        internal string linePattern = @"^\d\. .+\/\/.+";
 
-        internal Match reviewPattern(string str)
-        {
-            return Regex.Match(str, @"\[Рец. на:.+$");
-        }
+        internal string reviewPattern = @"\[Рец. на:.+$";
 
-        internal Match yearPattern(string str)
-        {
-            return Regex.Match(str, @"\d{4}(\–\d{4})*");
-        }
+        internal string volumePattern = @"Т. \d+(\–\d+)?";
 
-        internal Match yearNumberPattern(string str)
-        {
-            return Regex.Match(str, @"\d{4}(-|\/\d{4})*(-|\/)*\d*(\/\d)?");
-        }
+        internal string numberPattern = @"№ \d+\/?\d*\/?\d*";
 
-        internal Match volumePattern(string str)
-        {
-            return Regex.Match(str, @"Т. \d+(\–\d+)?");
-        }
+        internal string pagesPattern = @"С\.\s(.*\(\d-([а-я|ё])+ пагин\.\)|\d+\–?\d*)";
 
-        internal Match numberPattern(string str)
-        {
-            return Regex.Match(str, @"№ \d+\/?\d*\/?\d*");
-        }
+        internal string notesPattern = @"\((Начало.|Продолжение.|Окончание.)\)";
 
-        internal Match pagesPattern(string str)
-        {
-            return Regex.Match(str, @"С\.\s(.*\(\d-([а-я|ё])+ пагин\.\)|\d+\–?\d*)");
-        }
+        internal string initialsPattern = @"[А-Я]\.(\s[А-Я]\.)?";
 
-        internal Match notesPattern(string str)
-        {
-            return Regex.Match(str, @"\((Начало.|Продолжение.|Окончание.)\)");
-        }
+        internal string necrologuePattern = @"\[Некролог\.?\]";
 
-        internal Match initialsPattern(string str)
-        {
-            return Regex.Match(str, @"[А-Я]\.(\s[А-Я]\.)?");
-        }
+        internal string exclusionPattern = @"\[.*(по поводу кн.|рец. на|о книге|по поводу .+ст.).*\]";
 
-        internal Match necrologuePattern(string str)
-        {
-            return Regex.Match(str, @"\[Некролог\.?\]");
-        }
+        internal string editorsPattern = @"\s\/\s(Сообщ|Пер|Под|Вступ|Примеч|Публ|Предисл|С портр|Сост).+";
 
-        internal Match exclusionPattern(string str)
-        {
-            return Regex.Match(str, @"\[.*(по поводу кн.|рец. на|о книге|по поводу .+ст.).*\]");
-        }
+        internal string lastName = @"(\sи|;)\s";
 
-        internal Match editorsPattern(string str)
-        {
-            return Regex.Match(str, @"\s\/\s(Сообщ|Пер|Под|Вступ|Примеч|Предисл|С портр|Сост).+");
-        }
+        internal string rank = @"(\sи|;)\s";
 
-        internal Match editorsCountPattern(string str)
+        internal string MatchInitials = @"[А-Я]\.(\s[А-Я]\.)?";
+
+        internal string yearPattern = @".+\d{4}(\–\d{4})*";
+
+        internal string yearNumberPattern = @"^\d{4}(-|\/\d{4})*(-|\/)*\d*(\/\d)?";
+
+        internal Match MatchLine(string str)
         {
-            return Regex.Match(str, @"(\[?[А-Я]\.(\s[А-Я]\.)?\]?\s[А-Я][а-я|ё]+|(архим|иг|прот|свящ|иером)[а-я|ё]*\.?\s[А-Я][а-я|ё]+\s?\(?[А-Я][а-я|ё]+\)?)\,?");
+            return Regex.Match(str, @"^\d+\.\s?.+\/\/.+");
         }
 
         internal Match MatchOddPages(string str)
         {
-            return Regex.Match(str, @"^\d+\.\s?(Передняя обложка|Объявления|Задняя обложка|Список сокращений).+");
-        }
-
-        internal Match MatchLastName(string str)
-        {
-            return Regex.Match(str, @"(\sи|;)\s");
-        }
-
-        internal Match MatchRank(string str)
-        {
-            return Regex.Match(str, @"(\sи|;)\s");
-        }
-
-        internal Match MatchInitials(string str)
-        {
-            return Regex.Match(str, @"[А-Я]\.(\s[А-Я]\.)?");
-        }
-
-        public Match MatchLine(string str)
-        {
-            return Regex.Match(str, @"^\d+\.\s?.+\/\/.+");
+            return Regex.Match(str, @".+(Передняя обложка|Объявления|Задняя обложка|Список сокращений|Последняя страница).+");
         }
 
         internal Match MatchSplitEditor(string str)
         {
             return Regex.Match(str, @"(\sи|;)\s");
+        }
+
+        internal Match editorsCountPattern(string str)
+        {
+            return Regex.Match(str, @"(\[?[А-Я]\.(\s[А-Я]\.)?\]?\s[А-Я][а-я|ё]+|(архим|иг|прот|свящ|иером)[а-я|ё]*\.?\s[А-Я][а-я|ё]+\s?\(?[А-Я][а-я|ё]+\)?)\,?");
         }
 
         internal Match unknownPattern(string str)
@@ -171,22 +120,24 @@ namespace DocJournalParser
 
         internal List<Match> AutorMatches(string str)
         {
-            return new List<Match>() { unknownPattern(str),
-            detectedAutorPattern(str),
-            detectedMonachPattern(str),
-            hiddenManPattern(str),
-            manPattern(str),
-            monachPattern(str),
-            bishopPattern(str),
-            saintPattern(str),
-            saintBishopPattern(str)};
+            return new List<Match>() {
+                unknownPattern(str),
+                detectedAutorPattern(str),
+                detectedMonachPattern(str),
+                hiddenManPattern(str),
+                manPattern(str),
+                monachPattern(str),
+                bishopPattern(str),
+                saintPattern(str),
+                saintBishopPattern(str)
+            };
         }
 
         public List<Match> DetectedMatches(string str)
         {
             return new List<Match>() {
-            detectedAutorPattern(str),
-            detectedMonachPattern(str)};
+                detectedAutorPattern(str),
+                detectedMonachPattern(str)};
         }
     }
 }
