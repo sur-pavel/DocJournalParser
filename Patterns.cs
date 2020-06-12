@@ -61,9 +61,9 @@ namespace DocJournalParser
             return Regex.Match(str, @"(\sи|;)\s");
         }
 
-        internal Match editorsCountPattern(string str)
+        internal MatchCollection editorsCountPattern(string str)
         {
-            return Regex.Match(str, @"(\[?[А-Я]\.(\s[А-Я]\.)?\]?\s[А-Я][а-я|ё]+|(архим|иг|прот|свящ|иером)[а-я|ё]*\.?\s[А-Я][а-я|ё]+\s?\(?[А-Я][а-я|ё]+\)?)\,?");
+            return Regex.Matches(str, @"(\[?[А-Я]\.(\s[А-Я]\.)?\]?\s[А-Я][а-я|ё]+|(архим|иг|прот|свящ|иером)[а-я|ё]*\.?\s[А-Я][а-я|ё]+\s?\(?[А-Я][а-я|ё]+\)?)");
         }
 
         internal Match unknownPattern(string str)

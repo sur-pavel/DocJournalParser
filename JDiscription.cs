@@ -13,6 +13,7 @@ namespace DocJournalParser
         public string Initials { get; set; } = string.Empty;
         public string Rank { get; set; } = string.Empty;
         public string Invertion { get; set; } = string.Empty;
+        public string FirstEdFunc { get; set; } = string.Empty;
         public string FirstEdLastName { get; set; } = string.Empty;
         public string FirstEdInitials { get; set; } = string.Empty;
         public string FirstEdRank { get; set; } = string.Empty;

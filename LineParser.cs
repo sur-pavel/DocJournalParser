@@ -74,16 +74,19 @@ namespace DocJournalParser
 
         private void GetFirstEditor(JDiscription jDiscription)
         {
-            Match firstEditorM = patterns.MatchSplitEditor(jDiscription.Editors);
-            if (firstEditorM.Success)
+            MatchCollection matchCollection = patterns.editorsCountPattern(jDiscription.Editors);
+            int edCount = matchCollection.Count;
+            if (edCount > 1)
             {
-                jDiscription.FirstEdLastName = Regex.Split(jDiscription.Editors, patterns.lastName)[0];
+                jDiscription.FirstEdLastName = matchCollection[0].Value;
             }
             else
             {
                 jDiscription.FirstEdLastName = jDiscription.Editors;
             }
-            jDiscription.FirstEdLastName = Regex.Replace(jDiscription.FirstEdLastName, patterns.editorFunc, "");
+
+            jDiscription.FirstEdFunc = Regex.Match(jDiscription.FirstEdLastName, patterns.editorFunc).Value;
+            jDiscription.FirstEdLastName = ReplaceIfNotNull(jDiscription.FirstEdLastName, jDiscription.FirstEdFunc);
             foreach (Match match in patterns.InvertMathches(jDiscription.FirstEdLastName))
             {
                 if (match.Success)
@@ -91,11 +94,11 @@ namespace DocJournalParser
                     jDiscription.FirstEdInvertion = "1";
                 }
             }
-            if (!patterns.DetectedMatches(jDiscription.FirstEdLastName).Contains(firstEditorM))
-            {
-                jDiscription.FirstEdInitials = ExtractProp(jDiscription.FirstEdLastName, patterns.initialsPattern);
-                jDiscription.FirstEdLastName = ReplaceIfNotNull(jDiscription.FirstEdLastName, jDiscription.FirstEdInitials);
-            }
+
+            //from here
+            jDiscription.FirstEdInitials = ExtractProp(jDiscription.FirstEdLastName, patterns.initialsPattern);
+            jDiscription.FirstEdLastName = ReplaceIfNotNull(jDiscription.FirstEdLastName, jDiscription.FirstEdInitials);
+
             string[] lastNameSplit = Regex.Split(jDiscription.FirstEdLastName, @"(,\s)");
 
             if (lastNameSplit.Length > 1)
