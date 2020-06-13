@@ -51,6 +51,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Autor.cs" />
+    <Compile Include="Editor.cs" />
     <Compile Include="Patterns.cs" />
     <Compile Include="ExcelHandler.cs" />
     <Compile Include="JDiscription.cs" />

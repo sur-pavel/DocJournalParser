@@ -34,11 +34,11 @@ namespace DocJournalParser
 
         internal string editorsPattern = @"\s\/\s(Сообщ|Пер|Под ред|Вступ|Примеч|Публ|Предисл|С портр|Сост).+";
 
-        internal string editorFunc = @"\s?(Сообщ|Пер|Под ред|Вступ|Примеч|Публ|Предисл|С портр|Сост)\.?(\sс\s[а-я]*\.)?";
+        internal string editorFunc = @"^\s?(Сообщ|Пер|Под ред|Вступ|Примеч|Публ|Предисл|С портр|Сост)\.?(\sс\s[а-я]*\.)?";
 
         internal string lastName = @"(\sи|;)\s";
 
-        internal string rank = @"(\sи|;)\s";
+        internal string rankPattern = @"\s[а-я]+\.?";
 
         internal string MatchInitials = @"[А-Я]\.(\s[А-Я]\.)?";
 
@@ -61,52 +61,57 @@ namespace DocJournalParser
             return Regex.Match(str, @"(\sи|;)\s");
         }
 
-        internal MatchCollection editorsCountPattern(string str)
+        internal MatchCollection EditorsCountPattern(string str)
         {
             return Regex.Matches(str, @"(\[?[А-Я]\.(\s[А-Я]\.)?\]?\s[А-Я][а-я|ё]+|(архим|иг|прот|свящ|иером)[а-я|ё]*\.?\s[А-Я][а-я|ё]+\s?\(?[А-Я][а-я|ё]+\)?)");
         }
 
-        internal Match unknownPattern(string str)
+        internal Match MatchUnknownPattern(string str)
         {
             return Regex.Match(str, @"^.*\[Автор не установлен.\]");
         }
 
-        internal Match detectedAutorPattern(string str)
+        internal Match DetectedAutorPattern(string str)
         {
             return Regex.Match(str, @"^[А-Я]*[а-я|ё]* ?([А-Я]|\w)*\.? ?([А-Я]|\w|\*)\.? \[= ?[А-я|ё]*-?[А-Я][а-я|ё]+ [А-Я]\. ?[А-Я]?\.?\]");
         }
 
-        internal Match detectedMonachPattern(string str)
+        internal Match DetectedMonachPattern(string str)
         {
             return Regex.Match(str, @"^[А-Я]*[а-я|ё]* ?([А-Я]|\w)\. ([А-Я]|\w)\. \*?\[= ?[А-я|ё]+ \([А-я|ё]+\), [а-я|ё]+\.\]");
         }
 
-        internal Match hiddenManPattern(string str)
+        internal Match HiddenManPattern(string str)
         {
             return Regex.Match(str, @"^\[([А-Я])([а-я|ё])+ ([А-Я]). ([А-Я]).\]");
         }
 
-        internal Match manPattern(string str)
+        internal Match MatchManPattern(string str)
         {
             return Regex.Match(str, @"^[А-я|ё]*-?[А-Я][а-я|ё]+\s[А-Я]\.(\s[А-Я]\.)?,?\s?(диак|свящ|прот|граф)?\.?\,?\s?(проф.)?");
         }
 
-        internal Match monachPattern(string str)
+        internal Match MatchMonachPattern(string str)
         {
             return Regex.Match(str, @"^[А-я|ё]+\s\([А-я|ё]+\),\s[а-я|ё]+\.\,?\s?(наместник.+пустыни|наместник.+монастыря)?");
         }
 
-        internal Match bishopPattern(string str)
+        private Match ReversedMonachPattern(string str)
+        {
+            return Regex.Match(str, @"[а-я|ё]+\.?\s[А-Я][а-я|ё]+\s?\([А-Я][а-я|ё]+\)");
+        }
+
+        internal Match MatchBishopPattern(string str)
         {
             return Regex.Match(str, @"^[А-Я][а-я|ё]+\s\([А-Я][а-я|ё]+\),\s(еп|архиеп|митр|патр)[а-я|ё]*\.?\s[А-Я][а-я|ё]+(ий|ой)\s?и?\s?[А-Я]?[а-я|ё]*");
         }
 
-        internal Match saintPattern(string str)
+        internal Match MatchSaintPattern(string str)
         {
             return Regex.Match(str, @"^([А-Я])([а-я|ё])+ ([А-Я])([а-я|ё])+, ([а-я|ё])+\.");
         }
 
-        internal Match saintBishopPattern(string str)
+        internal Match SaintBishopPattern(string str)
         {
             return Regex.Match(str, @"^([А-Я])([а-я|ё])+, ([а-я|ё])+\. ([А-Я])([а-я|ё])+ий, ([а-я|ё])+\.");
         }
@@ -114,46 +119,64 @@ namespace DocJournalParser
         internal List<Match> InvertMathches(string str)
         {
             return new List<Match>() {
-            monachPattern(str),
-            bishopPattern(str),
-            saintPattern(str),
-            saintBishopPattern(str)};
+            MatchMonachPattern(str),
+            ReversedMonachPattern(str),
+            MatchBishopPattern(str),
+            MatchSaintPattern(str),
+            SaintBishopPattern(str)};
         }
 
         internal List<Match> AutorMatches(string str)
         {
             return new List<Match>() {
-                unknownPattern(str),
-                detectedAutorPattern(str),
-                detectedMonachPattern(str),
-                hiddenManPattern(str),
-                manPattern(str),
-                monachPattern(str),
-                bishopPattern(str),
-                saintPattern(str),
-                saintBishopPattern(str)
+                MatchUnknownPattern(str),
+                DetectedAutorPattern(str),
+                DetectedMonachPattern(str),
+                HiddenManPattern(str),
+                MatchManPattern(str),
+                MatchMonachPattern(str),
+                MatchBishopPattern(str),
+                MatchSaintPattern(str),
+                SaintBishopPattern(str)
             };
         }
 
         public List<Match> DetectedMatches(string str)
         {
             return new List<Match>() {
-                detectedAutorPattern(str),
-                detectedMonachPattern(str)};
+                DetectedAutorPattern(str),
+                DetectedMonachPattern(str)};
         }
 
         internal string DeclineLastName(string firstEdLastName)
         {
-            string bracket = string.Empty;
-            if (firstEdLastName.Contains(")"))
+            Match monachLNameMatch = Regex.Match(firstEdLastName, @"\(.+\)");
+            if (monachLNameMatch.Success)
             {
-                bracket = ")";
-                firstEdLastName = firstEdLastName.Replace(bracket, "");
+                string lastName = GetEdLastName(monachLNameMatch.Value);
+                firstEdLastName = Regex.Replace(firstEdLastName, lastName, "");
+                string firstName = GetFirstName(firstEdLastName.Trim());
+                firstEdLastName = Regex.Replace(firstEdLastName, firstName, "");
+                firstEdLastName = firstEdLastName + firstName + lastName;
             }
-            firstEdLastName = Regex.Replace(firstEdLastName, "ского$", "ский");
-            firstEdLastName = Regex.Replace(firstEdLastName, "ова$", "ов");
-            firstEdLastName += bracket;
             return firstEdLastName;
+        }
+
+        private string GetFirstName(string firstName)
+        {
+            return firstName + ' ';
+        }
+
+        private static string GetEdLastName(string lastName)
+        {
+            lastName = Regex.Replace(lastName, @"ского\)$", "ский)");
+            lastName = Regex.Replace(lastName, @"ова\)$", "ов)");
+            lastName = Regex.Replace(lastName, @"ева\)$", "ев)");
+            lastName = Regex.Replace(lastName, @"ына\)$", "ын)");
+            lastName = Regex.Replace(lastName, @"ина\)$", "ин)");
+            lastName = Regex.Replace(lastName, @"ыка\)$", "ык)");
+            lastName = Regex.Replace(lastName, @"ика\)$", "ик)");
+            return lastName;
         }
     }
 }

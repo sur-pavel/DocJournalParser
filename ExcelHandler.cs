@@ -53,18 +53,18 @@ namespace DocJournalParser
         internal void AddRow(JDiscription jDiscription)
         {
             xlWorkSheet.Cells[row, 1] = jDiscription.DеscriptionNumber;
-            xlWorkSheet.Cells[row, 2] = jDiscription.LastName;
-            xlWorkSheet.Cells[row, 3] = jDiscription.Initials;
-            xlWorkSheet.Cells[row, 4] = jDiscription.Rank;
-            xlWorkSheet.Cells[row, 5] = jDiscription.Invertion;
+            xlWorkSheet.Cells[row, 2] = jDiscription.Autor.LastName;
+            xlWorkSheet.Cells[row, 3] = jDiscription.Autor.Initials;
+            xlWorkSheet.Cells[row, 4] = jDiscription.Autor.Rank;
+            xlWorkSheet.Cells[row, 5] = jDiscription.Autor.Invertion;
             xlWorkSheet.Cells[row, 6] = jDiscription.Title;
             xlWorkSheet.Cells[row, 7] = jDiscription.TitleInfo;
             xlWorkSheet.Cells[row, 8] = jDiscription.Editors;
-            xlWorkSheet.Cells[row, 9] = jDiscription.FirstEdFunc;
-            xlWorkSheet.Cells[row, 10] = jDiscription.FirstEdLastName;
-            xlWorkSheet.Cells[row, 11] = jDiscription.FirstEdInitials;
-            xlWorkSheet.Cells[row, 12] = jDiscription.FirstEdRank;
-            xlWorkSheet.Cells[row, 13] = jDiscription.FirstEdInvertion;
+            xlWorkSheet.Cells[row, 9] = jDiscription.FirstEditor.Function;
+            xlWorkSheet.Cells[row, 10] = jDiscription.FirstEditor.LastName;
+            xlWorkSheet.Cells[row, 11] = jDiscription.FirstEditor.Initials;
+            xlWorkSheet.Cells[row, 12] = jDiscription.FirstEditor.Rank;
+            xlWorkSheet.Cells[row, 13] = jDiscription.FirstEditor.Invertion;
             xlWorkSheet.Cells[row, 14] = jDiscription.Year;
             xlWorkSheet.Cells[row, 15] = jDiscription.JVolume;
             xlWorkSheet.Cells[row, 16] = jDiscription.JNumber;

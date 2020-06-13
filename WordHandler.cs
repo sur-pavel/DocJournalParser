@@ -32,11 +32,10 @@ namespace DocJournalParser
             Console.WriteLine("Reading of lines in doc begins");
             List<string> data = new List<string>();
             int linesCount = 0;
-            int i = 0;
+
             int index = 0;
-            for (; i < objDoc.Paragraphs.Count; i++)
+            for (int i = 0; i < objDoc.Paragraphs.Count; i++)
             {
-                linesCount++;
                 Range parRange = objDoc.Paragraphs[i + 1].Range;
                 string line = parRange.Text.Trim();
                 Match MatchYearNumberPattern = Regex.Match(line, patterns.yearNumberPattern);
@@ -56,7 +55,8 @@ namespace DocJournalParser
                     if (recordIndex < 1) recordIndex = 1;
                     line = Regex.Replace(line, @"^\d+.\s?", recordIndex + ". ");
                     data.Add(line);
-                    Console.WriteLine($"record index = {recordIndex}");
+                    linesCount++;
+                    //Console.WriteLine($"record index = {recordIndex}");
                 }
                 else
                 {
