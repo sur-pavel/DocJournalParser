@@ -85,7 +85,7 @@ namespace DocJournalParser
                 jDiscription.FirstEditor.LastName = jDiscription.Editors;
             }
 
-            jDiscription.FirstEditor.Function = Regex.Match(jDiscription.Editors, patterns.editorFunc, RegexOptions.IgnoreCase).Value;
+            jDiscription.FirstEditor.Function = Regex.Split(jDiscription.Editors, matchCollection[0].Value)[0];
             jDiscription.FirstEditor.LastName = ReplaceIfNotNull(jDiscription.FirstEditor.LastName, jDiscription.FirstEditor.Function);
 
             foreach (Match match in patterns.InvertMathches(jDiscription.FirstEditor.LastName))
@@ -102,7 +102,7 @@ namespace DocJournalParser
             jDiscription.FirstEditor.LastName = ReplaceIfNotNull(jDiscription.FirstEditor.LastName, jDiscription.FirstEditor.Rank);
 
             jDiscription.FirstEditor.LastName = CleanUpString(jDiscription.FirstEditor.LastName);
-            jDiscription.FirstEditor.LastName = patterns.DeclineLastName(jDiscription.FirstEditor.LastName);
+            jDiscription.FirstEditor.LastName = patterns.DeclineEditorNames(jDiscription.FirstEditor.LastName);
         }
 
         private void ExtractFullPubInfo(ref string journalData, ref string fullPubInfo)
@@ -221,15 +221,6 @@ namespace DocJournalParser
             return Regex.Replace(str, patterns.cleanUpPattern, "").Trim();
         }
 
-        private string ReplaceIfNotNull(string inputString, string replaceString)
-        {
-            if (!string.IsNullOrEmpty(replaceString))
-            {
-                inputString = inputString.Replace(replaceString, "");
-            }
-            return inputString;
-        }
-
         private string ExtractProp(string inputString, string matchPattern, params string[] replaceStrings)
         {
             Match match = Regex.Match(inputString, matchPattern);
@@ -242,6 +233,15 @@ namespace DocJournalParser
                 }
             }
             return returnValue.Trim();
+        }
+
+        private string ReplaceIfNotNull(string inputString, string replaceString)
+        {
+            if (!string.IsNullOrEmpty(replaceString))
+            {
+                inputString = inputString.Replace(replaceString, "");
+            }
+            return inputString;
         }
     }
 }

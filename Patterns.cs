@@ -34,9 +34,11 @@ namespace DocJournalParser
 
         internal string editorsPattern = @"\s\/\s(Сообщ|Пер|Под ред|Вступ|Примеч|Публ|Предисл|С портр|Сост).+";
 
-        internal string editorFunc = @"^\s?(Сообщ|Пер|Под ред|Вступ|Примеч|Публ|Предисл|С портр|Сост)\.?(\sс\s[а-я]*\.)?";
+        internal string editorFunc = @"^\s?(Сообщ|Пер|Под ред|Вступ|Примеч|Публ|Предисл|С портр|Сост)\.?(\sс\s[а-я]+\.?)?";
 
         internal string lastName = @"(\sи|;)\s";
+
+        internal string fullEditorName = @"[а-я|ё]+\.?\s[А-Я][а-я|ё]+\s\(?[А-Я][а-я|ё]+\)?";
 
         internal string rankPattern = @"\s[а-я]+\.?";
 
@@ -148,35 +150,57 @@ namespace DocJournalParser
                 DetectedMonachPattern(str)};
         }
 
-        internal string DeclineLastName(string firstEdLastName)
+        internal string DeclineEditorNames(string firstEdLastName)
         {
-            Match monachLNameMatch = Regex.Match(firstEdLastName, @"\(.+\)");
-            if (monachLNameMatch.Success)
+            firstEdLastName = DeclineEdLastName(firstEdLastName);
+            Match fullNameMatch = Regex.Match(firstEdLastName, fullEditorName);
+            if (fullNameMatch.Success)
             {
-                string lastName = GetEdLastName(monachLNameMatch.Value);
+                string lastName = DeclineEdLastName(fullNameMatch.Value);
                 firstEdLastName = Regex.Replace(firstEdLastName, lastName, "");
-                string firstName = GetFirstName(firstEdLastName.Trim());
+                string firstName = DeclineFirstName(firstEdLastName.Trim());
                 firstEdLastName = Regex.Replace(firstEdLastName, firstName, "");
                 firstEdLastName = firstEdLastName + firstName + lastName;
             }
+
             return firstEdLastName;
         }
 
-        private string GetFirstName(string firstName)
+        private string DeclineFirstName(string firstName)
         {
-            return firstName + ' ';
+            //firstName = firstName.Trim();
+            return firstName.Trim() + ' ';
         }
 
-        private static string GetEdLastName(string lastName)
+        private static string DeclineEdLastName(string lastName)
         {
-            lastName = Regex.Replace(lastName, @"ского\)$", "ский)");
-            lastName = Regex.Replace(lastName, @"ова\)$", "ов)");
-            lastName = Regex.Replace(lastName, @"ева\)$", "ев)");
-            lastName = Regex.Replace(lastName, @"ына\)$", "ын)");
-            lastName = Regex.Replace(lastName, @"ина\)$", "ин)");
-            lastName = Regex.Replace(lastName, @"ыка\)$", "ык)");
-            lastName = Regex.Replace(lastName, @"ика\)$", "ик)");
-            return lastName;
+            string bracket = "";
+            if (lastName.Contains(")"))
+            {
+                bracket = ")";
+                lastName = lastName.Replace(")", "").Trim();
+            }
+            Dictionary<string, string> lastNameFinals = new Dictionary<string, string>()
+            {
+                { "ского$", "ский"},
+                { "ской$", "ская"},
+                { "ова$", "ов"},
+                { "овой$", "ова"},
+                { "ева$", "ев"},
+                { "евой$", "ева"},
+                { "ына$", "ын"},
+                { "ина$", "ин"},
+                { "ыка$", "ык"},
+                { "ихеса$", "ихес"},
+                { "селя$", "сель"},
+                { "ика$", "ик"},
+                { "юка$", "юк"}
+            };
+            foreach (var final in lastNameFinals)
+            {
+                lastName = Regex.Replace(lastName, final.Key, final.Value);
+            }
+            return lastName + bracket;
         }
     }
 }
