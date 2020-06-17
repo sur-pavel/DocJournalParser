@@ -10,43 +10,95 @@ namespace DocJournalParser
     public class Patterns
 
     {
-        internal string cleanUpPattern = @"^\s*(\.|\,|\:|\;|\/)|(\.|\,|\:|\;|\/)\s*$";
+        internal const string CleanUpPattern = @"^\s*(\.|\,|\:|\;|\/)|(\,|\:|\;|\/)\s*$";
 
-        internal string oddPagesPattern = "^.+(Передняя обложка|Объявления|Задняя обложка|Последняя страница).+";
+        internal const string ReviewPattern = @"\[Рец. на:.+$";
 
-        internal string linePattern = @"^\d\. .+\/\/.+";
+        internal const string VolumePattern = @"Т.\s\d+(\–\d+)?";
 
-        internal string reviewPattern = @"\[Рец. на:.+$";
+        internal const string NumberPattern = @"№\s\d+\/?\d*\/?\d*";
 
-        internal string volumePattern = @"Т. \d+(\–\d+)?";
+        internal const string PagesPattern = @"С\.\s(.*\(\d-([а-я|ё])+\sпагин\.\)|\d+\–?\d*)";
 
-        internal string numberPattern = @"№ \d+\/?\d*\/?\d*";
+        internal const string NotesPattern = @"\((Начало.|Продолжение.|Окончание.)\)";
 
-        internal string pagesPattern = @"С\.\s(.*\(\d-([а-я|ё])+ пагин\.\)|\d+\–?\d*)";
+        internal const string InitialsPattern = @"\[?[А-Я]\.(\s[А-Я]\.\]?)?";
 
-        internal string notesPattern = @"\((Начало.|Продолжение.|Окончание.)\)";
+        internal const string NecrologuePattern = @"\[Некролог\.?\]";
 
-        internal string initialsPattern = @"[А-Я]\.(\s[А-Я]\.)?";
+        internal const string ExclusionPattern = @"\[.*(по поводу кн.|рец. на|о книге|по поводу .+ст.).*\]";
 
-        internal string necrologuePattern = @"\[Некролог\.?\]";
+        internal const string EditorsPattern = @"\s\/\s(Сообщ|Пер|Под ред|Вступ|Примеч|Публ|Предисл|С портр|Сост).+";
 
-        internal string exclusionPattern = @"\[.*(по поводу кн.|рец. на|о книге|по поводу .+ст.).*\]";
+        internal string editorFunc =
+            @"^\s(Сообщ|Пер|Под ред|Вступ|Примеч|Публ|Предисл|С портр|Сост)\.?(\sс\s[а-я]+\.?)?";
 
-        internal string editorsPattern = @"\s\/\s(Сообщ|Пер|Под ред|Вступ|Примеч|Публ|Предисл|С портр|Сост).+";
+        internal string lastNamePattern = @"(\sи|;)\s";
 
-        internal string editorFunc = @"^\s?(Сообщ|Пер|Под ред|Вступ|Примеч|Публ|Предисл|С портр|Сост)\.?(\sс\s[а-я]+\.?)?";
+        internal const string RankPattern = @"\s[а-я]{3,10}\.";
 
-        internal string lastName = @"(\sи|;)\s";
+        internal const string YearPattern = @"\d{4}(\–|\-)?\d{0,4}";
 
-        internal string fullEditorName = @"[а-я|ё]+\.?\s[А-Я][а-я|ё]+\s\(?[А-Я][а-я|ё]+\)?";
+        internal const string YearNumberPattern = @"^\d{4}(-|\/\d{4})*(-|\/)*\d*(\/\d)?$";
+        
+        private const string FullEditorName = @"[а-я|ё]+\.?\s[А-Я][а-я|ё]+(\s\(?[А-Я][а-я|ё]+\)?)?";
+        private readonly Dictionary<string, string> _firstNameFinals;
+        private readonly Dictionary<string, string> _lastNameFinals;
 
-        internal string rankPattern = @"\s[а-я]+\.?";
-
-        internal string MatchInitials = @"[А-Я]\.(\s[А-Я]\.)?";
-
-        internal string yearPattern = @"\d{4}(\–|\-)?\d{0,4}";
-
-        internal string yearNumberPattern = @"^\d{4}(-|\/\d{4})*(-|\/)*\d*(\/\d)?$";
+        public Patterns()
+        {
+            _firstNameFinals = new Dictionary<string, string>()
+            {
+                {"ия$", "ий"},
+                {"ием$", "ий"},
+                {"ида$", "ид"},
+                {"идом$", "ид"},
+                {"ита$", "ит"},
+                {"итом$", "ит"},
+                {"ана$", "ан"},
+                {"аном$", "ан"},
+                {"ила$", "ил"},
+                {"илом$", "ил"},
+                {"ника$", "ник"},
+                {"ником$", "ник"},
+                {"ея$", "ей"},
+                {"еем$", "ей"},
+                {"слава$", "слав"},
+                {"славом$", "слав"},
+                {"ра$", "р"},
+                {"ром$", "р"},
+                {"ры$", "ра"},
+                {"рой$", "ра"},
+            };
+            _lastNameFinals = new Dictionary<string, string>()
+            {
+                {"ского$", "ский"},
+                {"ским$", "ский"},
+                {"ской$", "ская"},
+                {"ова$", "ов"},
+                {"овом$", "ов"},
+                {"овой$", "ова"},
+                {"ева$", "ев"},
+                {"евым$", "ев"},
+                {"евой$", "ева"},
+                {"ына$", "ын"},
+                {"ынымм$", "ын"},
+                {"ина$", "ин"},
+                {"иным$", "ин"},
+                {"ыка$", "ык"},
+                {"ыком$", "ык"},
+                {"ихеса$", "ихес"},
+                {"ихесом$", "ихес"},
+                {"селя$", "сель"},
+                {"селем$", "сель"},
+                {"ика$", "ик"},
+                {"иком$", "ик"},
+                {"ича$", "ич"},
+                {"ичом$", "ич"},
+                {"юка$", "юк"},
+                {"юком$", "юк"}
+            };
+        }
 
         internal Match MatchLine(string str)
         {
@@ -55,7 +107,8 @@ namespace DocJournalParser
 
         internal Match MatchOddPages(string str)
         {
-            return Regex.Match(str, @".+(Передняя обложка|Объявления|Задняя обложка|Список сокращений|Последняя страница).+");
+            return Regex.Match(str,
+                @".+(Передняя обложка|Объявления|Задняя обложка|Список сокращений|Последняя страница).+");
         }
 
         internal Match MatchSplitEditor(string str)
@@ -65,7 +118,8 @@ namespace DocJournalParser
 
         internal MatchCollection EditorsCountPattern(string str)
         {
-            return Regex.Matches(str, @"(\[?[А-Я]\.(\s[А-Я]\.)?\]?\s[А-Я][а-я|ё]+|(архим|иг|прот|свящ|иером)[а-я|ё]*\.?\s[А-Я][а-я|ё]+\s?\(?[А-Я][а-я|ё]+\)?)");
+            return Regex.Matches(str,
+                @"(\[?[А-Я]\.(\s[А-Я]\.)?\]?\s[А-Я][а-я|ё]+|(архим|иг|прот|свящ|иером)[а-я|ё]*\.?\s[А-Я][а-я|ё]+(\s\(?[А-Я][а-я|ё]+\)?)?)");
         }
 
         internal Match MatchUnknownPattern(string str)
@@ -75,27 +129,31 @@ namespace DocJournalParser
 
         internal Match DetectedAutorPattern(string str)
         {
-            return Regex.Match(str, @"^[А-Я]*[а-я|ё]* ?([А-Я]|\w)*\.? ?([А-Я]|\w|\*)\.? \[= ?[А-я|ё]*-?[А-Я][а-я|ё]+ [А-Я]\. ?[А-Я]?\.?\]");
+            return Regex.Match(str,
+                @"^[А-Я]*[а-я|ё]*\s?([А-Я]|\w)*\.?\s?([А-Я]|\w|\*)\.?\s\[=\s?[А-я|ё]*-?[А-Я][а-я|ё]+\s[А-Я]\.\s?[А-Я]?\.?\]");
         }
 
         internal Match DetectedMonachPattern(string str)
         {
-            return Regex.Match(str, @"^[А-Я]*[а-я|ё]* ?([А-Я]|\w)\. ([А-Я]|\w)\. \*?\[= ?[А-я|ё]+ \([А-я|ё]+\), [а-я|ё]+\.\]");
+            return Regex.Match(str,
+                @"^[А-Я]*[а-я|ё]*\s?([А-Я]|\w)\.\s([А-Я]|\w)\.\s\*?\[=\s?[А-я|ё]+\s\([А-я|ё]+\),\s[а-я|ё]+\.\]");
         }
 
         internal Match HiddenManPattern(string str)
         {
-            return Regex.Match(str, @"^\[([А-Я])([а-я|ё])+ ([А-Я]). ([А-Я]).\]");
+            return Regex.Match(str, @"^\[([А-Я])([а-я|ё])+\s([А-Я]).\s([А-Я]).\]");
         }
 
         internal Match MatchManPattern(string str)
         {
-            return Regex.Match(str, @"^[А-я|ё]*-?[А-Я][а-я|ё]+\s[А-Я]\.(\s[А-Я]\.)?,?\s?(диак|свящ|прот|граф)?\.?\,?\s?(проф.)?");
+            return Regex.Match(str,
+                @"^[А-я|ё]*-?[А-Я][а-я|ё]+\s[А-Я]\.(\s[А-Я]\.)?,?\s?(диак|свящ|прот|граф)?\.?\,?\s?(проф.)?");
         }
 
         internal Match MatchMonachPattern(string str)
         {
-            return Regex.Match(str, @"^[А-я|ё]+\s\([А-я|ё]+\),\s[а-я|ё]+\.\,?\s?(наместник.+пустыни|наместник.+монастыря)?");
+            return Regex.Match(str,
+                @"^[А-я|ё]+\s\([А-я|ё]+\),\s[а-я|ё]+\.\,?\s?(наместник.+пустыни|наместник.+монастыря)?");
         }
 
         private Match ReversedMonachPattern(string str)
@@ -105,32 +163,36 @@ namespace DocJournalParser
 
         internal Match MatchBishopPattern(string str)
         {
-            return Regex.Match(str, @"^[А-Я][а-я|ё]+\s\([А-Я][а-я|ё]+\),\s(еп|архиеп|митр|патр)[а-я|ё]*\.?\s[А-Я][а-я|ё]+(ий|ой)\s?и?\s?[А-Я]?[а-я|ё]*");
+            return Regex.Match(str,
+                @"^[А-Я][а-я|ё]+\s\([А-Я][а-я|ё]+\),\s(еп|архиеп|митр|патр)[а-я|ё]*\.?\s[А-Я][а-я|ё]+(ий|ой)\s?и?\s?[А-Я]?[а-я|ё]*");
         }
 
         internal Match MatchSaintPattern(string str)
         {
-            return Regex.Match(str, @"^([А-Я])([а-я|ё])+ ([А-Я])([а-я|ё])+, ([а-я|ё])+\.");
+            return Regex.Match(str, @"^([А-Я])([а-я|ё])+\s([А-Я])([а-я|ё])+,\s([а-я|ё])+\.");
         }
 
         internal Match SaintBishopPattern(string str)
         {
-            return Regex.Match(str, @"^([А-Я])([а-я|ё])+, ([а-я|ё])+\. ([А-Я])([а-я|ё])+ий, ([а-я|ё])+\.");
+            return Regex.Match(str, @"^([А-Я])([а-я|ё])+,\s([а-я|ё])+\.\s([А-Я])([а-я|ё])+ий,\s([а-я|ё])+\.");
         }
 
         internal List<Match> InvertMathches(string str)
         {
-            return new List<Match>() {
-            MatchMonachPattern(str),
-            ReversedMonachPattern(str),
-            MatchBishopPattern(str),
-            MatchSaintPattern(str),
-            SaintBishopPattern(str)};
+            return new List<Match>()
+            {
+                MatchMonachPattern(str),
+                ReversedMonachPattern(str),
+                MatchBishopPattern(str),
+                MatchSaintPattern(str),
+                SaintBishopPattern(str)
+            };
         }
 
         internal List<Match> AutorMatches(string str)
         {
-            return new List<Match>() {
+            return new List<Match>()
+            {
                 MatchUnknownPattern(str),
                 DetectedAutorPattern(str),
                 DetectedMonachPattern(str),
@@ -145,34 +207,51 @@ namespace DocJournalParser
 
         public List<Match> DetectedMatches(string str)
         {
-            return new List<Match>() {
+            return new List<Match>()
+            {
                 DetectedAutorPattern(str),
-                DetectedMonachPattern(str)};
+                DetectedMonachPattern(str)
+            };
         }
 
-        internal string DeclineEditorNames(string firstEdLastName)
+        internal string DeclineEditorNames(string firstEditor)
         {
-            firstEdLastName = DeclineEdLastName(firstEdLastName);
-            Match fullNameMatch = Regex.Match(firstEdLastName, fullEditorName);
+            Match fullNameMatch = Regex.Match(firstEditor, FullEditorName);
             if (fullNameMatch.Success)
             {
-                string lastName = DeclineEdLastName(fullNameMatch.Value);
-                firstEdLastName = Regex.Replace(firstEdLastName, lastName, "");
-                string firstName = DeclineFirstName(firstEdLastName.Trim());
-                firstEdLastName = Regex.Replace(firstEdLastName, firstName, "");
-                firstEdLastName = firstEdLastName + firstName + lastName;
+                string lastName = string.Empty;
+                string[] words = firstEditor.Trim().Split(' ');
+                string firstName = words[1];
+                firstEditor = firstEditor.Replace(firstName, "");
+                if (words.Length > 2)
+                {
+                    lastName = words[2];
+                    firstEditor = firstEditor.Replace(lastName, "");
+                    lastName = " " + DeclineEdLastName(lastName);
+                }
+
+                firstName = DeclineFirstName(firstName.Trim());
+                firstEditor = Regex.Replace(firstEditor, @"\s\s", " ") + firstName + lastName;
+            }
+            else
+            {
+                firstEditor = DeclineEdLastName(firstEditor);
             }
 
-            return firstEdLastName;
+            return firstEditor;
         }
 
         private string DeclineFirstName(string firstName)
         {
-            //firstName = firstName.Trim();
-            return firstName.Trim() + ' ';
+            foreach (var final in _firstNameFinals)
+            {
+                firstName = Regex.Replace(firstName, final.Key, final.Value);
+            }
+
+            return firstName;
         }
 
-        private static string DeclineEdLastName(string lastName)
+        private string DeclineEdLastName(string lastName)
         {
             string bracket = "";
             if (lastName.Contains(")"))
@@ -180,26 +259,12 @@ namespace DocJournalParser
                 bracket = ")";
                 lastName = lastName.Replace(")", "").Trim();
             }
-            Dictionary<string, string> lastNameFinals = new Dictionary<string, string>()
-            {
-                { "ского$", "ский"},
-                { "ской$", "ская"},
-                { "ова$", "ов"},
-                { "овой$", "ова"},
-                { "ева$", "ев"},
-                { "евой$", "ева"},
-                { "ына$", "ын"},
-                { "ина$", "ин"},
-                { "ыка$", "ык"},
-                { "ихеса$", "ихес"},
-                { "селя$", "сель"},
-                { "ика$", "ик"},
-                { "юка$", "юк"}
-            };
-            foreach (var final in lastNameFinals)
+
+            foreach (var final in _lastNameFinals)
             {
                 lastName = Regex.Replace(lastName, final.Key, final.Value);
             }
+
             return lastName + bracket;
         }
     }

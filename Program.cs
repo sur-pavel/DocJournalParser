@@ -44,8 +44,8 @@ namespace DocJournalParser
             }
 
             Console.WriteLine("All tasks ended");
-            Console.WriteLine("\n\nPress any key...");
-            Console.ReadKey();
+//            Console.WriteLine("\n\nPress any key...");
+//            Console.ReadKey();
         }
 
         private static void KillProcesses(params string[] processNames)
