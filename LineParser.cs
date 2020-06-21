@@ -47,8 +47,9 @@ namespace DocJournalParser
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine("-----------------------");
                 Console.WriteLine(line);
+                Console.WriteLine(ex);
                 Console.WriteLine(jDiscription + "\n");
             }
 
@@ -81,41 +82,59 @@ namespace DocJournalParser
         private void GetFirstEditor(JDiscription jDiscription)
         {
             MatchCollection matchCollection = patterns.EditorsCountPattern(jDiscription.Editors);
+
             int edCount = matchCollection.Count;
-            if (edCount > 1)
+            if (edCount > 0)
             {
-                jDiscription.FirstEditor.LastName = matchCollection[0].Value;
-            }
-            else
-            {
-                jDiscription.FirstEditor.LastName = jDiscription.Editors;
-            }
-
-            jDiscription.FirstEditor.Function =
-                jDiscription.Editors.Split(new string[] {matchCollection[0].Value}, StringSplitOptions.None)[0];
-            jDiscription.FirstEditor.LastName =
-                ReplaceIfNotNull(jDiscription.FirstEditor.LastName, jDiscription.FirstEditor.Function);
-
-            foreach (Match match in patterns.InvertMathches(jDiscription.FirstEditor.LastName))
-            {
-                if (match.Success)
+                if (edCount > 1)
                 {
-                    jDiscription.FirstEditor.Invertion = "1";
+                    jDiscription.FirstEditor.LastName = matchCollection[0].Value;
                 }
+                else
+                {
+                    jDiscription.FirstEditor.LastName = jDiscription.Editors;
+                }
+
+                try
+                {
+                    jDiscription.FirstEditor.Function =
+                        jDiscription.Editors.Split(new string[] {matchCollection[0].Value}, StringSplitOptions.None)[0];
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    jDiscription.FirstEditor.LastName = Regex.Replace(jDiscription.FirstEditor.LastName, Patterns.Parentheses, "");
+                    jDiscription.FirstEditor.Function =
+                        jDiscription.Editors.Split(new string[] {matchCollection[0].Value}, StringSplitOptions.None)[0];
+                    throw;
+                }
+
+                jDiscription.FirstEditor.LastName =
+                    ReplaceIfNotNull(jDiscription.FirstEditor.LastName, jDiscription.FirstEditor.Function);
+
+                foreach (Match match in patterns.InvertMathches(jDiscription.FirstEditor.LastName))
+                {
+                    if (match.Success)
+                    {
+                        jDiscription.FirstEditor.Invertion = "1";
+                    }
+                }
+
+                jDiscription.FirstEditor.Initials =
+                    ExtractProp(jDiscription.FirstEditor.LastName, Patterns.InitialsPattern);
+                jDiscription.FirstEditor.LastName =
+                    ReplaceIfNotNull(jDiscription.FirstEditor.LastName, jDiscription.FirstEditor.Initials);
+                if (!string.IsNullOrEmpty(jDiscription.FirstEditor.LastName))
+                {
+                    jDiscription.FirstEditor.LastName = CleanUpString(jDiscription.FirstEditor.LastName);
+                    jDiscription.FirstEditor.LastName = patterns.DeclineEditorNames(jDiscription.FirstEditor.LastName);
+                }
+
+                jDiscription.FirstEditor.Rank = ExtractProp(jDiscription.FirstEditor.LastName, Patterns.RankPattern);
+                jDiscription.FirstEditor.LastName =
+                    ReplaceIfNotNull(jDiscription.FirstEditor.LastName, jDiscription.FirstEditor.Rank);
+                jDiscription.FirstEditor.LastName = CleanUpString(jDiscription.FirstEditor.LastName);
             }
-
-            jDiscription.FirstEditor.Initials =
-                ExtractProp(jDiscription.FirstEditor.LastName, Patterns.InitialsPattern);
-            jDiscription.FirstEditor.LastName =
-                ReplaceIfNotNull(jDiscription.FirstEditor.LastName, jDiscription.FirstEditor.Initials);
-
-            jDiscription.FirstEditor.LastName = CleanUpString(jDiscription.FirstEditor.LastName);
-            jDiscription.FirstEditor.LastName = patterns.DeclineEditorNames(jDiscription.FirstEditor.LastName);
-
-            jDiscription.FirstEditor.Rank = ExtractProp(jDiscription.FirstEditor.LastName, Patterns.RankPattern);
-            jDiscription.FirstEditor.LastName =
-                ReplaceIfNotNull(jDiscription.FirstEditor.LastName, jDiscription.FirstEditor.Rank);
-            jDiscription.FirstEditor.LastName = jDiscription.FirstEditor.LastName.Trim();
         }
 
         private void ExtractFullPubInfo(ref string journalData, ref string fullPubInfo)
@@ -241,6 +260,7 @@ namespace DocJournalParser
             {
                 str = Regex.Replace(str, @"\.$", "");
             }
+
             return Regex.Replace(str, Patterns.CleanUpPattern, "").Trim();
         }
 

@@ -33,6 +33,8 @@ namespace DocJournalParser
             List<string> data = new List<string>();
             int linesCount = 0;
             int allLines = 0;
+            int oddPages = 0;
+            int yearPages = 0;
             int index = 0;
             for (int i = 0; i < objDoc.Paragraphs.Count; i++)
             {
@@ -42,34 +44,36 @@ namespace DocJournalParser
                 {
                     allLines++;
                 }
+
                 Match MatchYearNumberPattern = Regex.Match(line, Patterns.YearNumberPattern);
 
                 if (MatchYearNumberPattern.Success)
                 {
+                    yearPages++;
                     index = 0;
                 }
                 else if (patterns.MatchOddPages(line).Success)
                 {
+                    oddPages++;
                     index++;
                 }
                 else if (!string.IsNullOrEmpty(line) && patterns.MatchLine(line).Success)
                 {
-                    int recordIndex = int.Parse(Regex.Match(line, @"^\d+").Value) - index;
-                    if (recordIndex < 1) recordIndex = 1;
-                    line = Regex.Replace(line, @"^\d+.\s?", recordIndex + ". ");
+//                    int recordIndex = int.Parse(Regex.Match(line, @"^\d+").Value) - index;
+//                    if (recordIndex < 1) recordIndex = 1;
+//                    line = Regex.Replace(line, @"^\d+.\s?", recordIndex + ". ");
                     data.Add(line);
                     linesCount++;
 //                    Console.WriteLine($"record index = {recordIndex}");
                 }
                 else
                 {
-                    if (line.Length > 3)
-                    {
-                        Console.WriteLine(line);
-                    }
+                    Console.WriteLine(line);
                 }
             }
-            Console.WriteLine($"linesCount: {linesCount} all lines = {allLines}");
+
+            Console.WriteLine($"linesCount = {linesCount} all lines = {allLines}");
+            Console.WriteLine($"oddPages = {oddPages} yearPages = {yearPages}");
             Console.WriteLine("Reading of lines in doc ends");
             return data;
         }

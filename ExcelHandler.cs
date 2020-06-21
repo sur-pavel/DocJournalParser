@@ -44,10 +44,7 @@ namespace DocJournalParser
             xlWorkSheet.Cells[1, 16] = "Номер";
             xlWorkSheet.Cells[1, 17] = "Страницы";
             xlWorkSheet.Cells[1, 18] = "Примечание";
-            xlWorkSheet.Cells[1, 19] = "Год полн. публ.";
-            xlWorkSheet.Cells[1, 20] = "Том полн. публ.";
-            xlWorkSheet.Cells[1, 21] = "Номер полн. публ.";
-            xlWorkSheet.Cells[1, 22] = "Стр. ст. полн. публ.";
+            xlWorkSheet.Cells[1, 19] = "Полная публикация";
         }
 
         internal void AddRow(JDiscription jDiscription)
@@ -70,10 +67,7 @@ namespace DocJournalParser
             xlWorkSheet.Cells[row, 16] = jDiscription.JNumber;
             xlWorkSheet.Cells[row, 17] = jDiscription.Pages;
             xlWorkSheet.Cells[row, 18] = jDiscription.Notes;
-            xlWorkSheet.Cells[row, 19] = jDiscription.FullPubYear;
-            xlWorkSheet.Cells[row, 20] = jDiscription.FullPubVolume;
-            xlWorkSheet.Cells[row, 21] = jDiscription.FullPubNumber;
-            xlWorkSheet.Cells[row, 22] = jDiscription.FullPubPageRange;
+            xlWorkSheet.Cells[row, 19] = jDiscription.FullPublication;
 
             row++;
         }

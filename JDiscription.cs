@@ -20,6 +20,7 @@ namespace DocJournalParser
         public string Pages { get; set; } = string.Empty;
         public string Notes { get; set; } = string.Empty;
         public string FullPubYear { get; set; } = string.Empty;
+        public string FullPublication { get; set; } = string.Empty;
         public string FullPubVolume { get; set; } = string.Empty;
         public string FullPubNumber { get; set; } = string.Empty;
         public string FullPubPageRange { get; set; } = string.Empty;
