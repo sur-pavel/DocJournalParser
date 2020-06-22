@@ -28,46 +28,52 @@ namespace DocJournalParser
 
             xlWorkSheet.Cells[1, 1] = "Номер записи";
             xlWorkSheet.Cells[1, 2] = "Фамилия";
-            xlWorkSheet.Cells[1, 3] = "Инициалы";
-            xlWorkSheet.Cells[1, 4] = "Чин";
-            xlWorkSheet.Cells[1, 5] = "Инвертирование";
-            xlWorkSheet.Cells[1, 6] = "Заглавие";
-            xlWorkSheet.Cells[1, 7] = "Сведения к заглавию";
-            xlWorkSheet.Cells[1, 8] = "Свед. об отв-ти";
-            xlWorkSheet.Cells[1, 9] = "Функция п. ред-ра";
-            xlWorkSheet.Cells[1, 10] = "Фамилия п. ред-ра";
-            xlWorkSheet.Cells[1, 11] = "Инициалы п. ред-ра";
-            xlWorkSheet.Cells[1, 12] = "Чин п. ред-ра";
-            xlWorkSheet.Cells[1, 13] = "Инверт. п. ред-ра";
-            xlWorkSheet.Cells[1, 14] = "Год";
-            xlWorkSheet.Cells[1, 15] = "Том";
-            xlWorkSheet.Cells[1, 16] = "Номер";
-            xlWorkSheet.Cells[1, 17] = "Страницы";
-            xlWorkSheet.Cells[1, 18] = "Примечание";
-            xlWorkSheet.Cells[1, 19] = "Полная публикация";
+            xlWorkSheet.Cells[1, 3] = "Разночтение";
+            xlWorkSheet.Cells[1, 4] = "Инициалы";
+            xlWorkSheet.Cells[1, 5] = "Чин";
+            xlWorkSheet.Cells[1, 6] = "Инвертирование";
+            xlWorkSheet.Cells[1, 7] = "Заглавие";
+            xlWorkSheet.Cells[1, 8] = "Сведения к заглавию";
+            xlWorkSheet.Cells[1, 9] = "Свед. об отв-ти";
+            xlWorkSheet.Cells[1, 10] = "Функция п. ред-ра";
+            xlWorkSheet.Cells[1, 11] = "Фамилия п. ред-ра";
+            xlWorkSheet.Cells[1, 12] = "Разночтение п. ред-ра";
+            xlWorkSheet.Cells[1, 13] = "Инициалы п. ред-ра";
+            xlWorkSheet.Cells[1, 14] = "Чин п. ред-ра";
+            xlWorkSheet.Cells[1, 15] = "Инверт. п. ред-ра";
+            xlWorkSheet.Cells[1, 16] = "Год";
+            xlWorkSheet.Cells[1, 17] = "Том";
+            xlWorkSheet.Cells[1, 18] = "Номер";
+            xlWorkSheet.Cells[1, 19] = "Страницы";
+            xlWorkSheet.Cells[1, 20] = "№ пагинация";
+            xlWorkSheet.Cells[1, 21] = "Примечание";
+            xlWorkSheet.Cells[1, 22] = "Полная публикация";
         }
 
         internal void AddRow(JDiscription jDiscription)
         {
             xlWorkSheet.Cells[row, 1] = jDiscription.DеscriptionNumber;
             xlWorkSheet.Cells[row, 2] = jDiscription.Autor.LastName;
-            xlWorkSheet.Cells[row, 3] = jDiscription.Autor.Initials;
-            xlWorkSheet.Cells[row, 4] = jDiscription.Autor.Rank;
-            xlWorkSheet.Cells[row, 5] = jDiscription.Autor.Invertion;
-            xlWorkSheet.Cells[row, 6] = jDiscription.Title;
-            xlWorkSheet.Cells[row, 7] = jDiscription.TitleInfo;
-            xlWorkSheet.Cells[row, 8] = jDiscription.Editors;
-            xlWorkSheet.Cells[row, 9] = jDiscription.FirstEditor.Function;
-            xlWorkSheet.Cells[row, 10] = jDiscription.FirstEditor.LastName;
-            xlWorkSheet.Cells[row, 11] = jDiscription.FirstEditor.Initials;
-            xlWorkSheet.Cells[row, 12] = jDiscription.FirstEditor.Rank;
-            xlWorkSheet.Cells[row, 13] = jDiscription.FirstEditor.Invertion;
-            xlWorkSheet.Cells[row, 14] = jDiscription.Year;
-            xlWorkSheet.Cells[row, 15] = jDiscription.JVolume;
-            xlWorkSheet.Cells[row, 16] = jDiscription.JNumber;
-            xlWorkSheet.Cells[row, 17] = jDiscription.Pages;
-            xlWorkSheet.Cells[row, 18] = jDiscription.Notes;
-            xlWorkSheet.Cells[row, 19] = jDiscription.FullPublication;
+            xlWorkSheet.Cells[row, 3] = jDiscription.Autor.LNameVariation;
+            xlWorkSheet.Cells[row, 4] = jDiscription.Autor.Initials;
+            xlWorkSheet.Cells[row, 5] = jDiscription.Autor.Rank;
+            xlWorkSheet.Cells[row, 6] = jDiscription.Autor.Invertion;
+            xlWorkSheet.Cells[row, 7] = jDiscription.Title;
+            xlWorkSheet.Cells[row, 8] = jDiscription.TitleInfo;
+            xlWorkSheet.Cells[row, 9] = jDiscription.Editors;
+            xlWorkSheet.Cells[row, 10] = jDiscription.FirstEditor.Function;
+            xlWorkSheet.Cells[row, 11] = jDiscription.FirstEditor.LastName;
+            xlWorkSheet.Cells[row, 12] = jDiscription.FirstEditor.LNameVariation;
+            xlWorkSheet.Cells[row, 13] = jDiscription.FirstEditor.Initials;
+            xlWorkSheet.Cells[row, 14] = jDiscription.FirstEditor.Rank;
+            xlWorkSheet.Cells[row, 15] = jDiscription.FirstEditor.Invertion;
+            xlWorkSheet.Cells[row, 16] = jDiscription.Year;
+            xlWorkSheet.Cells[row, 17] = jDiscription.JVolume;
+            xlWorkSheet.Cells[row, 18] = jDiscription.JNumber;
+            xlWorkSheet.Cells[row, 19] = jDiscription.Pages;
+            xlWorkSheet.Cells[row, 20] = jDiscription.Pagination;            
+            xlWorkSheet.Cells[row, 21] = jDiscription.Notes;
+            xlWorkSheet.Cells[row, 22] = jDiscription.FullPublication;
 
             row++;
         }

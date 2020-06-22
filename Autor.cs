@@ -13,6 +13,7 @@ namespace DocJournalParser
         public string Initials { get; set; } = string.Empty;
         public string Rank { get; set; } = string.Empty;
         public string Invertion { get; set; } = string.Empty;
+        public string LNameVariation { get; set; }= string.Empty;
 
         private PropertyInfo[] _PropertyInfos = null;
 

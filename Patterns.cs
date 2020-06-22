@@ -19,9 +19,9 @@ namespace DocJournalParser
         internal const string NumberPattern = @"№\s\d+\/?\d*\/?\d*";
 
         internal const string PagesPattern = @"С\.\s(.*\(\d-([а-я|ё])+\sпагин\.\)|\d+\–?\d*)";
-        
-        internal const string PaginationPattern = @"/\(\d-([а-я|ё])+\sпагин\.\)/g";
-        
+
+        internal const string PaginationPattern = @"\s\(\d-([а-я])+\sпагин\.\)";
+
         internal const string NotesPattern = @"\((Начало.|Продолжение.|Окончание.)\)";
 
         internal const string InitialsPattern = @"\[?[А-Я]\.(\s[А-Я]\.\]?)?";
@@ -36,6 +36,8 @@ namespace DocJournalParser
             @"^\s(Сообщ|Пер|Под ред|Вступ|Примеч|Публ|Предисл|С портр|Сост)\.?(\sс\s[а-я]+\.?)?";
 
         internal string lastNamePattern = @"(\sи|;)\s";
+            
+        internal const string LNameInBrackets=@"\s\([А-я]+\)";
 
         internal const string RankPattern = @"(\s|^)[а-я]{3,10}\.";
 
@@ -44,8 +46,11 @@ namespace DocJournalParser
         internal const string YearNumberPattern = @"^\d{4}(-|\/\d{4})*(-|\/)\d*((-|\/)\d+)*$";
 
         private const string FullEditorName = @"[а-я|ё]+\.?\s[А-Я][а-я|ё]+(\s\(?[А-Я][а-я|ё]+\)?)?";
-        internal const string Parentheses = @"\(|\)";
+
+        internal const string Brakets = @"\(|\)";
+
         private readonly Dictionary<string, string> _firstNameFinals;
+
         private readonly Dictionary<string, string> _lastNameFinals;
 
         public Patterns()
@@ -108,6 +113,7 @@ namespace DocJournalParser
         {
             return Regex.Match(str, @"^\d+\.\s?.+\/\/.+");
         }
+        
 
         internal Match MatchOddPages(string str)
         {
@@ -258,7 +264,7 @@ namespace DocJournalParser
         private string DeclineEdLastName(string lastName)
         {
             string bracket = "";
-            if (lastName.Contains(")"))
+            if (Regex.IsMatch(lastName, Brakets))
             {
                 bracket = ")";
                 lastName = lastName.Replace(")", "").Trim();
