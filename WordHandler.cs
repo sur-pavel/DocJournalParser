@@ -59,12 +59,12 @@ namespace DocJournalParser
                 }
                 else if (!string.IsNullOrEmpty(line) && patterns.MatchLine(line).Success)
                 {
-//                    int recordIndex = int.Parse(Regex.Match(line, @"^\d+").Value) - index;
-//                    if (recordIndex < 1) recordIndex = 1;
-//                    line = Regex.Replace(line, @"^\d+.\s?", recordIndex + ". ");
+                    //                    int recordIndex = int.Parse(Regex.Match(line, @"^\d+").Value) - index;
+                    //                    if (recordIndex < 1) recordIndex = 1;
+                    //                    line = Regex.Replace(line, @"^\d+.\s?", recordIndex + ". ");
                     data.Add(line);
                     linesCount++;
-//                    Console.WriteLine($"record index = {recordIndex}");
+                    //                    Console.WriteLine($"record index = {recordIndex}");
                 }
                 else
                 {
