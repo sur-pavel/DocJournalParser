@@ -244,7 +244,7 @@ namespace DocJournalParser
             }
 
             string[] lastNameSplit =
-                jDiscription.Autor.LastName.Split(new string[] {@"(,\s)"}, StringSplitOptions.None);
+                jDiscription.Autor.LastName.Split(new string[] {", "}, StringSplitOptions.None);
 
             if (lastNameSplit.Length > 1)
             {
@@ -256,7 +256,7 @@ namespace DocJournalParser
 
                 if (Regex.IsMatch(jDiscription.Autor.Rank, @"\.\s*$"))
                 {
-                    jDiscription.Autor.Rank = CleanUpString(jDiscription.Autor.Rank) + ".";
+                    jDiscription.Autor.Rank = CleanUpString(jDiscription.Autor.Rank);
                 }
                 else
                 {
