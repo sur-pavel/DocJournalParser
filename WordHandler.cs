@@ -68,7 +68,7 @@ namespace DocJournalParser
                 }
                 else
                 {
-                    Console.WriteLine(line);
+                    Console.WriteLine("Not detected line: " + line);
                 }
             }
 
