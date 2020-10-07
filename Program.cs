@@ -40,7 +40,7 @@ namespace DocJournalParser
                     excelHandler.AddRow(jDiscription);
                 }
                 wordHandler.Quit();
-                excelHandler.SaveFile(fileInfo.FullName.Replace(".doc", ".xlsx"));
+                excelHandler.SaveFile(fileInfo.FullName.Replace(".docx", ".xlsx"));
             }
 
             Console.WriteLine("All tasks ended");
