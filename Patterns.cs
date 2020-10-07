@@ -24,16 +24,16 @@ namespace DocJournalParser
 
         internal const string NotesPattern = @"\((Начало.|Продолжение.|Окончание.)\)";
 
-        internal const string InitialsPattern = @"\[?[А-Я]\.(\s[А-Я]\.\]?)?";
+        internal const string InitialsPattern = @"\[?[А-Я]\.\-?(\s[А-Я]\.\]?)?";
 
         internal const string NecrologuePattern = @"\[Некролог\.?\]";
 
         internal const string ExclusionPattern = @"\[.*(по поводу кн.|рец. на|о книге|по поводу .+ст.).*\]";
 
-        internal const string EditorsPattern = @"\s\/\s(Сообщ|Пер|Под ред|Вступ|Примеч|Публ|Предисл|С портр|Сост).+";
+        internal const string EditorsPattern = @"\s\/\s(сообщ|пер|под ред|вступ|примеч|публ|предисл|с портр|сост).+";
 
         internal string editorFunc =
-            @"^\s(Сообщ|Пер|Под ред|Вступ|Примеч|Публ|Предисл|С портр|Сост)\.?(\sс\s[а-я]+\.?)?";
+            @"^\s(сообщ|пер|под ред|вступ|примеч|публ|предисл|с портр|сост)\.?(\sс\s[а-я]+\.?)?";
 
         internal string lastNamePattern = @"(\sи|;)\s";
             
